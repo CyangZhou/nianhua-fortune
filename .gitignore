@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.json
+!package.json
+*.txt
+!LICENSE.txt
+*-report.md
+*-report.json
+*-2026-*.md
+test_module*.py
+config.json
