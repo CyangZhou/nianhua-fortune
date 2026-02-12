@@ -6,9 +6,12 @@
     <meta name="description" content="甲午马年新春盛典 - 抽奖、祝福、贺卡生成">
     <meta name="theme-color" content="#c41e3a">
     <title>甲午马年 · 新春盛典</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --china-red: #c41e3a;
@@ -20,17 +23,27 @@
             --cream: #fffef5;
             --dark-bg: #1a0a0a;
             --card-bg: #2d1515;
+            
             --wheel-size: 350px;
             --wheel-inner-size: 100px;
             --animation-duration: 4s;
+            --spark-interval: 300;
+            --firework-count: 30;
         }
+        
         @media (max-width: 768px) {
             :root {
                 --wheel-size: 280px;
                 --wheel-inner-size: 80px;
             }
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Noto Serif SC', serif;
             background: var(--dark-bg);
@@ -38,6 +51,7 @@
             overflow-x: hidden;
             color: var(--cream);
         }
+        
         .loading-screen {
             position: fixed;
             top: 0;
@@ -52,8 +66,17 @@
             z-index: 9999;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        .loading-screen.hidden { opacity: 0; visibility: hidden; }
-        .loading-horse { font-size: 4rem; animation: horseGallop 0.8s ease-in-out infinite; }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loading-horse {
+            font-size: 4rem;
+            animation: horseGallop 0.8s ease-in-out infinite;
+        }
+        
         .loading-text {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 1.5rem;
@@ -61,6 +84,7 @@
             margin-top: 20px;
             letter-spacing: 0.3em;
         }
+        
         .loading-progress {
             width: 200px;
             height: 4px;
@@ -69,6 +93,7 @@
             margin-top: 20px;
             overflow: hidden;
         }
+        
         .loading-progress-bar {
             width: 0%;
             height: 100%;
@@ -76,6 +101,7 @@
             border-radius: 2px;
             transition: width 0.3s ease;
         }
+        
         .bg-layer {
             position: fixed;
             top: 0;
@@ -85,6 +111,7 @@
             pointer-events: none;
             z-index: 0;
         }
+        
         .bg-gradient {
             background: 
                 radial-gradient(ellipse at 50% 0%, rgba(196, 30, 58, 0.3) 0%, transparent 50%),
@@ -92,6 +119,7 @@
                 radial-gradient(ellipse at 100% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 40%),
                 radial-gradient(ellipse at 50% 100%, rgba(139, 0, 0, 0.4) 0%, transparent 50%);
         }
+        
         .lanterns {
             position: fixed;
             top: 0;
@@ -101,20 +129,24 @@
             pointer-events: none;
             z-index: 1;
         }
+        
         .lantern {
             position: absolute;
             font-size: 3rem;
             animation: swing 4s ease-in-out infinite;
             filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
         }
+        
         .lantern:nth-child(1) { left: 5%; top: 5%; animation-delay: 0s; }
         .lantern:nth-child(2) { left: 15%; top: 3%; animation-delay: 0.5s; font-size: 2.5rem; }
         .lantern:nth-child(3) { right: 5%; top: 5%; animation-delay: 1s; }
         .lantern:nth-child(4) { right: 15%; top: 3%; animation-delay: 1.5s; font-size: 2.5rem; }
+        
         @keyframes swing {
             0%, 100% { transform: rotate(-5deg); }
             50% { transform: rotate(5deg); }
         }
+        
         .firecrackers {
             position: fixed;
             top: 0;
@@ -124,6 +156,7 @@
             pointer-events: none;
             z-index: 2;
         }
+        
         .spark {
             position: absolute;
             width: 3px;
@@ -132,11 +165,13 @@
             border-radius: 50%;
             animation: sparkle 2s ease-out forwards;
         }
+        
         @keyframes sparkle {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.8; transform: scale(1.5); }
             100% { opacity: 0; transform: scale(0); }
         }
+        
         .container {
             position: relative;
             z-index: 10;
@@ -144,11 +179,13 @@
             margin: 0 auto;
             padding: 20px;
         }
+        
         header {
             text-align: center;
             padding: 80px 20px 50px;
             position: relative;
         }
+        
         .header-decoration {
             position: absolute;
             top: 20px;
@@ -159,15 +196,19 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
-        .header-decoration::before, .header-decoration::after {
+        
+        .header-decoration::before,
+        .header-decoration::after {
             content: '✦';
             position: absolute;
             top: -10px;
             font-size: 1.2rem;
             color: var(--gold);
         }
+        
         .header-decoration::before { left: 0; }
         .header-decoration::after { right: 0; }
+        
         .main-title {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: clamp(3.5rem, 10vw, 7rem);
@@ -175,25 +216,31 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: none;
             filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
             letter-spacing: 0.15em;
+            position: relative;
             display: inline-block;
             animation: titleGlow 3s ease-in-out infinite;
         }
+        
         @keyframes titleGlow {
             0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5)); }
             50% { filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.8)); }
         }
+        
         .horse-icon {
             font-size: 1.5em;
             margin: 0 0.2em;
             display: inline-block;
             animation: horseGallop 1s ease-in-out infinite;
         }
+        
         @keyframes horseGallop {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
+        
         .subtitle {
             font-size: 1.4rem;
             color: var(--light-gold);
@@ -201,6 +248,7 @@
             letter-spacing: 0.5em;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
+        
         .year-badge {
             display: inline-block;
             background: linear-gradient(135deg, var(--china-red), var(--deep-red));
@@ -210,11 +258,14 @@
             margin-top: 25px;
             font-size: 1.1rem;
             letter-spacing: 0.3em;
-            box-shadow: 0 5px 20px rgba(196, 30, 58, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 5px 20px rgba(196, 30, 58, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             border: 2px solid var(--gold);
             position: relative;
             overflow: hidden;
         }
+        
         .year-badge::before {
             content: '';
             position: absolute;
@@ -225,20 +276,25 @@
             background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
             animation: badgeShine 3s linear infinite;
         }
+        
         @keyframes badgeShine {
             0% { transform: translateX(-100%) rotate(45deg); }
             100% { transform: translateX(100%) rotate(45deg); }
         }
+        
         section {
             margin: 50px 0;
             padding: 40px;
             background: linear-gradient(145deg, rgba(45, 21, 21, 0.95), rgba(26, 10, 10, 0.98));
             border-radius: 25px;
             border: 2px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
             position: relative;
             overflow: hidden;
         }
+        
         section::before {
             content: '';
             position: absolute;
@@ -248,33 +304,40 @@
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
+        
         .section-title {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 2.5rem;
             color: var(--gold);
             text-align: center;
             margin-bottom: 35px;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 20px;
         }
-        .section-title::before, .section-title::after {
+        
+        .section-title::before,
+        .section-title::after {
             content: '◆';
             font-size: 0.6em;
             color: var(--china-red);
         }
+        
         .lottery-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 30px;
         }
+        
         .lottery-wheel {
             position: relative;
             width: var(--wheel-size);
             height: var(--wheel-size);
         }
+        
         .wheel-outer {
             position: absolute;
             width: 100%;
@@ -282,18 +345,25 @@
             border-radius: 50%;
             background: conic-gradient(
                 from 0deg,
-                var(--china-red) 0deg 40deg, var(--deep-red) 40deg 80deg,
-                var(--china-red) 80deg 120deg, var(--deep-red) 120deg 160deg,
-                var(--china-red) 160deg 200deg, var(--deep-red) 200deg 240deg,
-                var(--china-red) 240deg 280deg, var(--deep-red) 280deg 320deg,
+                var(--china-red) 0deg 40deg,
+                var(--deep-red) 40deg 80deg,
+                var(--china-red) 80deg 120deg,
+                var(--deep-red) 120deg 160deg,
+                var(--china-red) 160deg 200deg,
+                var(--deep-red) 200deg 240deg,
+                var(--china-red) 240deg 280deg,
+                var(--deep-red) 280deg 320deg,
                 var(--china-red) 320deg 360deg
             );
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.3),
+                inset 0 0 50px rgba(0, 0, 0, 0.5);
             border: 4px solid var(--gold);
             transition: transform var(--animation-duration) cubic-bezier(0.17, 0.67, 0.12, 0.99);
             will-change: transform;
             overflow: hidden;
         }
+        
         .wheel-labels {
             position: absolute;
             width: 100%;
@@ -302,6 +372,7 @@
             top: 0;
             left: 0;
         }
+        
         .wheel-label {
             position: absolute;
             font-size: 0.85rem;
@@ -311,6 +382,7 @@
             white-space: nowrap;
             transform-origin: center center;
         }
+        
         .wheel-inner {
             position: absolute;
             top: 50%;
@@ -327,6 +399,7 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
+        
         .wheel-pointer {
             position: absolute;
             top: -20px;
@@ -340,6 +413,7 @@
             filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
             z-index: 3;
         }
+        
         .lottery-btn {
             background: linear-gradient(135deg, var(--gold), var(--dark-gold));
             color: var(--deep-red);
@@ -352,12 +426,41 @@
             transition: all 0.3s ease;
             letter-spacing: 0.15em;
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            position: relative;
+            overflow: hidden;
         }
+        
         .lottery-btn:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
         }
-        .lottery-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .lottery-btn:focus {
+            outline: 3px solid var(--light-gold);
+            outline-offset: 3px;
+        }
+        
+        .lottery-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .lottery-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .lottery-btn:hover::after {
+            transform: rotate(45deg) translateX(100%);
+        }
+        
         .lottery-result {
             text-align: center;
             padding: 30px;
@@ -367,39 +470,56 @@
             display: none;
             min-width: 300px;
         }
+        
         .lottery-result.show {
             display: block;
             animation: resultPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
+        
         @keyframes resultPop {
             0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .result-title { font-size: 1.3rem; color: var(--light-gold); margin-bottom: 15px; }
+        
+        .result-title {
+            font-size: 1.3rem;
+            color: var(--light-gold);
+            margin-bottom: 15px;
+        }
+        
         .result-prize {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 2.5rem;
             color: var(--gold);
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
-        .result-icon { font-size: 3rem; margin-bottom: 10px; }
+        
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
         .blessings-scroll-container {
             background: linear-gradient(135deg, rgba(196, 30, 58, 0.2), rgba(139, 0, 0, 0.3));
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 30px;
             border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
             overflow: hidden;
         }
+        
         .blessings-scroll {
             display: flex;
             gap: 50px;
             animation: scrollBlessings 25s linear infinite;
         }
+        
         @keyframes scrollBlessings {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
+        
         .blessing-item {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 1.8rem;
@@ -407,12 +527,18 @@
             white-space: nowrap;
             text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
-        .blessing-separator { color: var(--china-red); font-size: 1.5rem; }
+        
+        .blessing-separator {
+            color: var(--china-red);
+            font-size: 1.5rem;
+        }
+        
         .blessing-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
         }
+        
         .blessing-card {
             background: linear-gradient(145deg, rgba(196, 30, 58, 0.3), rgba(45, 21, 21, 0.8));
             padding: 30px 20px;
@@ -424,19 +550,45 @@
             position: relative;
             overflow: hidden;
         }
-        .blessing-card:hover, .blessing-card:focus {
+        
+        .blessing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .blessing-card:hover,
+        .blessing-card:focus {
             transform: translateY(-8px);
             border-color: var(--gold);
             box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
             outline: none;
         }
-        .blessing-card-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+        
+        .blessing-card:hover::before,
+        .blessing-card:focus::before {
+            opacity: 1;
+        }
+        
+        .blessing-card-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
         .blessing-card-title {
             font-family: 'Ma Shan Zheng', cursive;
             font-size: 1.5rem;
             color: var(--gold);
             margin-bottom: 10px;
         }
+        
         .blessing-card-text {
             font-size: 0.95rem;
             color: var(--light-gold);
@@ -446,17 +598,21 @@
             overflow: hidden;
             transition: all 0.3s ease;
         }
-        .blessing-card:hover .blessing-card-text, .blessing-card:focus .blessing-card-text {
+        
+        .blessing-card:hover .blessing-card-text,
+        .blessing-card:focus .blessing-card-text {
             opacity: 1;
             max-height: 100px;
             margin-top: 10px;
         }
+        
         .card-styles {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
+        
         .card-style {
             aspect-ratio: 4/3;
             border-radius: 15px;
@@ -471,40 +627,82 @@
             justify-content: center;
             padding: 20px;
         }
+        
         .card-style::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             opacity: 0.9;
             z-index: 0;
         }
-        .card-style.classic::before { background: linear-gradient(135deg, var(--china-red), var(--deep-red)); }
-        .card-style.elegant::before { background: linear-gradient(135deg, var(--gold), var(--dark-gold)); }
-        .card-style.festive::before { background: linear-gradient(135deg, var(--bright-red), var(--gold)); }
+        
+        .card-style.classic::before {
+            background: linear-gradient(135deg, var(--china-red), var(--deep-red));
+        }
+        
+        .card-style.elegant::before {
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+        }
+        
+        .card-style.festive::before {
+            background: linear-gradient(135deg, var(--bright-red), var(--gold));
+        }
+        
         .card-style.selected {
             border-color: var(--gold);
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
             transform: scale(1.02);
         }
-        .card-style:hover:not(.selected), .card-style:focus:not(.selected) {
+        
+        .card-style:hover:not(.selected),
+        .card-style:focus:not(.selected) {
             transform: scale(1.02);
             border-color: rgba(255, 215, 0, 0.5);
             outline: none;
         }
-        .card-style-icon { font-size: 2.5rem; margin-bottom: 10px; position: relative; z-index: 1; }
-        .card-style-name { font-family: 'Ma Shan Zheng', cursive; font-size: 1.3rem; position: relative; z-index: 1; }
+        
+        .card-style-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card-style-name {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
         .card-style.classic .card-style-name { color: var(--cream); }
         .card-style.elegant .card-style-name { color: var(--deep-red); }
         .card-style.festive .card-style-name { color: var(--dark-bg); }
+        
         .card-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 25px;
         }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 10px; color: var(--gold); font-size: 1rem; font-weight: 600; }
-        .form-group input, .form-group textarea {
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 10px;
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 12px;
@@ -514,12 +712,19 @@
             font-size: 1rem;
             transition: all 0.3s ease;
         }
-        .form-group input:focus, .form-group textarea:focus {
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--gold);
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
         }
-        .form-group textarea { resize: vertical; min-height: 100px; }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
         .generate-btn {
             background: linear-gradient(135deg, var(--china-red), var(--deep-red));
             color: var(--gold);
@@ -534,30 +739,37 @@
             display: block;
             margin: 0 auto;
         }
-        .generate-btn:hover, .generate-btn:focus {
+        
+        .generate-btn:hover,
+        .generate-btn:focus {
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4);
             outline: none;
         }
+        
         .card-preview-container {
             margin-top: 40px;
             text-align: center;
             display: none;
         }
+        
         .card-preview-container.show {
             display: block;
             animation: fadeIn 0.5s ease;
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         .card-preview-container canvas {
             max-width: 100%;
             border-radius: 20px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             border: 3px solid var(--gold);
         }
+        
         .download-btn {
             background: linear-gradient(135deg, var(--gold), var(--dark-gold));
             color: var(--deep-red);
@@ -571,17 +783,21 @@
             margin-top: 25px;
             letter-spacing: 0.1em;
         }
-        .download-btn:hover, .download-btn:focus {
+        
+        .download-btn:hover,
+        .download-btn:focus {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
             outline: none;
         }
+        
         .music-control {
             position: fixed;
             bottom: 30px;
             right: 30px;
             z-index: 100;
         }
+        
         .music-btn {
             width: 65px;
             height: 65px;
@@ -597,12 +813,22 @@
             justify-content: center;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
-        .music-btn:hover, .music-btn:focus { transform: scale(1.1); outline: none; }
-        .music-btn.playing { animation: musicPulse 1.5s infinite; }
+        
+        .music-btn:hover,
+        .music-btn:focus {
+            transform: scale(1.1);
+            outline: none;
+        }
+        
+        .music-btn.playing {
+            animation: musicPulse 1.5s infinite;
+        }
+        
         @keyframes musicPulse {
             0%, 100% { box-shadow: 0 8px 25px rgba(196, 30, 58, 0.4); }
             50% { box-shadow: 0 8px 40px rgba(255, 215, 0, 0.6); }
         }
+        
         .music-visualizer {
             position: absolute;
             bottom: 75px;
@@ -612,7 +838,11 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        .music-btn.playing + .music-visualizer { opacity: 1; }
+        
+        .music-btn.playing + .music-visualizer {
+            opacity: 1;
+        }
+        
         .music-bar {
             width: 5px;
             height: 25px;
@@ -620,35 +850,45 @@
             border-radius: 3px;
             animation: musicBar 0.6s ease-in-out infinite alternate;
         }
+        
         .music-bar:nth-child(1) { animation-delay: 0s; }
         .music-bar:nth-child(2) { animation-delay: 0.1s; }
         .music-bar:nth-child(3) { animation-delay: 0.2s; }
         .music-bar:nth-child(4) { animation-delay: 0.15s; }
+        
         @keyframes musicBar {
             0% { height: 12px; }
             100% { height: 30px; }
         }
+        
         .fireworks-container {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 5;
         }
+        
         .firework {
             position: absolute;
             border-radius: 50%;
             animation: fireworkBurst 1.5s ease-out forwards;
         }
+        
         @keyframes fireworkBurst {
             0% { transform: scale(0); opacity: 1; }
             50% { opacity: 0.8; }
             100% { transform: scale(30); opacity: 0; }
         }
+        
         footer {
             text-align: center;
             padding: 50px 20px;
+            position: relative;
         }
+        
         .footer-decoration {
             width: 60%;
             max-width: 400px;
@@ -656,141 +896,204 @@
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             margin: 0 auto 20px;
         }
-        footer p { color: var(--light-gold); margin: 8px 0; font-size: 1rem; }
-        .footer-icon { font-size: 1.5rem; margin: 0 10px; }
-        @media (max-width: 768px) {
-            .lantern { font-size: 2rem; }
-            .music-control { bottom: 20px; right: 20px; }
-            .music-btn { width: 55px; height: 55px; font-size: 1.3rem; }
-            section { padding: 25px; margin: 30px 0; }
-            .blessing-cards { grid-template-columns: 1fr; }
-            .card-styles { grid-template-columns: repeat(3, 1fr); }
+        
+        footer p {
+            color: var(--light-gold);
+            margin: 8px 0;
+            font-size: 1rem;
         }
+        
+        .footer-icon {
+            font-size: 1.5rem;
+            margin: 0 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .lantern {
+                font-size: 2rem;
+            }
+            
+            .music-control {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .music-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.3rem;
+            }
+            
+            section {
+                padding: 25px;
+                margin: 30px 0;
+            }
+            
+            .blessing-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-styles {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+            *,
+            *::before,
+            *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
             }
-            .blessings-scroll { animation: none; }
+            
+            .blessings-scroll {
+                animation: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading-screen" id="loadingScreen">
+    <div class="loading-screen" id="loadingScreen" role="status" aria-label="页面加载中">
         <div class="loading-horse">🐴</div>
         <p class="loading-text">新春盛典加载中</p>
         <div class="loading-progress">
             <div class="loading-progress-bar" id="loadingBar"></div>
         </div>
     </div>
-    <div class="bg-layer bg-gradient"></div>
-    <div class="lanterns">
+    
+    <div class="bg-layer bg-gradient" aria-hidden="true"></div>
+    
+    <div class="lanterns" aria-hidden="true">
         <span class="lantern">🏮</span>
         <span class="lantern">🏮</span>
         <span class="lantern">🏮</span>
         <span class="lantern">🏮</span>
     </div>
-    <div class="firecrackers" id="firecrackers"></div>
-    <div class="fireworks-container" id="fireworks"></div>
+    
+    <div class="firecrackers" id="firecrackers" aria-hidden="true"></div>
+    <div class="fireworks-container" id="fireworks" aria-hidden="true"></div>
+    
     <main class="container">
         <header>
-            <div class="header-decoration"></div>
+            <div class="header-decoration" aria-hidden="true"></div>
             <h1 class="main-title">
-                <span class="horse-icon">🐴</span>
+                <span class="horse-icon" aria-hidden="true">🐴</span>
                 甲午马年
-                <span class="horse-icon">🐴</span>
+                <span class="horse-icon" aria-hidden="true">🐴</span>
             </h1>
             <p class="subtitle">龙马精神 · 万事如意</p>
             <span class="year-badge">✦ 新春盛典 ✦</span>
         </header>
-        <section id="lottery">
-            <h2 class="section-title">新春抽奖</h2>
+        
+        <section id="lottery" aria-labelledby="lottery-title">
+            <h2 class="section-title" id="lottery-title">新春抽奖</h2>
             <div class="lottery-container">
-                <div class="lottery-wheel">
-                    <div class="wheel-pointer"></div>
-                    <div class="wheel-outer" id="wheelOuter">
+                <div class="lottery-wheel" role="img" aria-label="抽奖转盘">
+                    <div class="wheel-pointer" aria-hidden="true"></div>
+                    <div class="wheel-outer" id="wheelOuter" aria-hidden="true">
                         <div class="wheel-labels" id="wheelLabels"></div>
                     </div>
-                    <div class="wheel-inner">🎁</div>
+                    <div class="wheel-inner" aria-hidden="true">🎁</div>
                 </div>
-                <button class="lottery-btn" id="lotteryBtn">开始抽奖</button>
-                <div class="lottery-result" id="lotteryResult">
-                    <div class="result-icon" id="resultIcon">🎉</div>
+                <button class="lottery-btn" id="lotteryBtn" aria-describedby="lottery-instruction">
+                    开始抽奖
+                </button>
+                <span id="lottery-instruction" class="visually-hidden">点击按钮开始抽奖转盘</span>
+                <div class="lottery-result" id="lotteryResult" role="alert" aria-live="polite">
+                    <div class="result-icon" id="resultIcon" aria-hidden="true">🎉</div>
                     <p class="result-title">恭喜您获得</p>
                     <p class="result-prize" id="prizeText"></p>
                 </div>
             </div>
         </section>
-        <section id="blessings">
-            <h2 class="section-title">新春祝福</h2>
-            <div class="blessings-scroll-container">
+        
+        <section id="blessings" aria-labelledby="blessings-title">
+            <h2 class="section-title" id="blessings-title">新春祝福</h2>
+            <div class="blessings-scroll-container" aria-label="滚动祝福语">
                 <div class="blessings-scroll" id="blessingsScroll">
-                    <span class="blessing-item">马到成功</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">龙马精神</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">一马当先</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万马奔腾</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马年大吉</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">吉祥如意</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">阖家幸福</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万事亨通</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马到成功</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">龙马精神</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">一马当先</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万马奔腾</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马年大吉</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">吉祥如意</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">阖家幸福</span><span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万事亨通</span><span class="blessing-separator">✦</span>
+                    <span class="blessing-item">马到成功</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">龙马精神</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">一马当先</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">万马奔腾</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">马年大吉</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">吉祥如意</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">阖家幸福</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">万事亨通</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">马到成功</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">龙马精神</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">一马当先</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">万马奔腾</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">马年大吉</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">吉祥如意</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">阖家幸福</span>
+                    <span class="blessing-separator">✦</span>
+                    <span class="blessing-item">万事亨通</span>
+                    <span class="blessing-separator">✦</span>
                 </div>
             </div>
-            <div class="blessing-cards">
-                <div class="blessing-card" tabindex="0">
-                    <span class="blessing-card-icon">🐴</span>
+            <div class="blessing-cards" role="list">
+                <div class="blessing-card" role="listitem" tabindex="0" aria-label="马到成功祝福">
+                    <span class="blessing-card-icon" aria-hidden="true">🐴</span>
                     <h3 class="blessing-card-title">马到成功</h3>
                     <p class="blessing-card-text">愿您马年：事业如骏马奔腾，财源似万马齐喑，生活若春风得意！</p>
                 </div>
-                <div class="blessing-card" tabindex="0">
-                    <span class="blessing-card-icon">🐉</span>
+                <div class="blessing-card" role="listitem" tabindex="0" aria-label="龙马精神祝福">
+                    <span class="blessing-card-icon" aria-hidden="true">🐉</span>
                     <h3 class="blessing-card-title">龙马精神</h3>
                     <p class="blessing-card-text">祝您新年：龙马精神展宏图，金戈铁马创伟业，天马行空任翱翔！</p>
                 </div>
-                <div class="blessing-card" tabindex="0">
-                    <span class="blessing-card-icon">⭐</span>
+                <div class="blessing-card" role="listitem" tabindex="0" aria-label="一马当先祝福">
+                    <span class="blessing-card-icon" aria-hidden="true">⭐</span>
                     <h3 class="blessing-card-title">一马当先</h3>
                     <p class="blessing-card-text">愿新的一年：一马当先开新局，快马加鞭奔前程，汗马功劳铸辉煌！</p>
                 </div>
-                <div class="blessing-card" tabindex="0">
-                    <span class="blessing-card-icon">🏮</span>
+                <div class="blessing-card" role="listitem" tabindex="0" aria-label="吉祥如意祝福">
+                    <span class="blessing-card-icon" aria-hidden="true">🏮</span>
                     <h3 class="blessing-card-title">吉祥如意</h3>
                     <p class="blessing-card-text">恭祝您：马年行大运，福禄双全至，阖家皆欢乐，万事尽如意！</p>
                 </div>
             </div>
         </section>
-        <section id="greetingCard">
-            <h2 class="section-title">贺卡生成</h2>
-            <div class="card-styles">
-                <div class="card-style classic selected" data-style="classic" tabindex="0">
-                    <span class="card-style-icon">🐴</span>
+        
+        <section id="greetingCard" aria-labelledby="card-title">
+            <h2 class="section-title" id="card-title">贺卡生成</h2>
+            <div class="card-styles" role="radiogroup" aria-label="选择贺卡风格">
+                <div class="card-style classic selected" data-style="classic" role="radio" aria-checked="true" tabindex="0">
+                    <span class="card-style-icon" aria-hidden="true">🐴</span>
                     <span class="card-style-name">经典红金</span>
                 </div>
-                <div class="card-style elegant" data-style="elegant" tabindex="0">
-                    <span class="card-style-icon">🎊</span>
+                <div class="card-style elegant" data-style="elegant" role="radio" aria-checked="false" tabindex="0">
+                    <span class="card-style-icon" aria-hidden="true">🎊</span>
                     <span class="card-style-name">华贵金韵</span>
                 </div>
-                <div class="card-style festive" data-style="festive" tabindex="0">
-                    <span class="card-style-icon">🏮</span>
+                <div class="card-style festive" data-style="festive" role="radio" aria-checked="false" tabindex="0">
+                    <span class="card-style-icon" aria-hidden="true">🏮</span>
                     <span class="card-style-name">喜庆红金</span>
                 </div>
             </div>
-            <form class="card-form" id="cardForm">
+            <form class="card-form" id="cardForm" aria-label="贺卡信息表单">
                 <div class="form-group">
                     <label for="recipientName">收件人姓名</label>
-                    <input type="text" id="recipientName" placeholder="请输入收件人姓名" maxlength="20">
+                    <input type="text" id="recipientName" placeholder="请输入收件人姓名" maxlength="20" autocomplete="name">
                 </div>
                 <div class="form-group">
                     <label for="senderName">发件人姓名</label>
-                    <input type="text" id="senderName" placeholder="请输入您的姓名" maxlength="20">
+                    <input type="text" id="senderName" placeholder="请输入您的姓名" maxlength="20" autocomplete="name">
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="blessingText">祝福语</label>
@@ -798,71 +1101,151 @@
                 </div>
             </form>
             <button class="generate-btn" id="generateBtn" type="button">生成贺卡</button>
-            <div class="card-preview-container" id="cardPreview">
-                <canvas id="greetingCanvas" width="600" height="450"></canvas>
+            <div class="card-preview-container" id="cardPreview" aria-label="贺卡预览">
+                <canvas id="greetingCanvas" width="600" height="450" aria-label="生成的贺卡图片"></canvas>
                 <br>
                 <button class="download-btn" id="downloadBtn" type="button">下载贺卡</button>
             </div>
         </section>
+        
         <footer>
-            <div class="footer-decoration"></div>
-            <p><span class="footer-icon">🐴</span>甲午马年 · 新春盛典<span class="footer-icon">🐴</span></p>
+            <div class="footer-decoration" aria-hidden="true"></div>
+            <p>
+                <span class="footer-icon" aria-hidden="true">🐴</span>
+                甲午马年 · 新春盛典
+                <span class="footer-icon" aria-hidden="true">🐴</span>
+            </p>
             <p>祝您马年大吉，万事如意</p>
         </footer>
     </main>
+    
     <div class="music-control">
-        <button class="music-btn" id="musicBtn" aria-label="播放背景音乐">🎵</button>
-        <div class="music-visualizer">
+        <button class="music-btn" id="musicBtn" aria-label="播放背景音乐" aria-pressed="false">🎵</button>
+        <div class="music-visualizer" aria-hidden="true">
             <div class="music-bar"></div>
             <div class="music-bar"></div>
             <div class="music-bar"></div>
             <div class="music-bar"></div>
         </div>
     </div>
+    
     <audio id="bgMusic" loop preload="auto">
+        <source src="https://music.163.com/song/media/outer/url?id=109827.mp3" type="audio/mpeg">
         <source src="https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3" type="audio/mpeg">
-        <source src="https://cdn.pixabay.com/audio/2021/09/06/audio_0b7749c8e2.mp3" type="audio/mpeg">
-        <source src="https://cdn.pixabay.com/audio/2021/08/09/audio_0625c6b4a1.mp3" type="audio/mpeg">
     </audio>
+    
+    <style>
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+    
     <script>
     (function() {
         'use strict';
+        
         const CONFIG = {
             prizes: [
-                { name: '一等奖', icon: '🏆' }, { name: '二等奖', icon: '🥈' },
-                { name: '三等奖', icon: '🥉' }, { name: '幸运奖', icon: '🍀' },
-                { name: '马年大吉', icon: '🐴' }, { name: '新年快乐', icon: '🎊' },
-                { name: '恭喜发财', icon: '💰' }, { name: '心想事成', icon: '✨' },
+                { name: '一等奖', icon: '🏆' },
+                { name: '二等奖', icon: '🥈' },
+                { name: '三等奖', icon: '🥉' },
+                { name: '幸运奖', icon: '🍀' },
+                { name: '马年大吉', icon: '🐴' },
+                { name: '新年快乐', icon: '🎊' },
+                { name: '恭喜发财', icon: '💰' },
+                { name: '心想事成', icon: '✨' },
                 { name: '万事如意', icon: '🎁' }
             ],
             fireworkColors: ['#c41e3a', '#ffd700', '#e74c3c', '#fff4d6', '#ff6b6b'],
             cardStyles: {
-                classic: { bg: ['#c41e3a', '#8b0000'], accent: '#ffd700', text: '#fffef5', icon: '🐴' },
-                elegant: { bg: ['#ffd700', '#b8860b'], accent: '#8b0000', text: '#1a0a0a', icon: '🎊' },
-                festive: { bg: ['#e74c3c', '#ffd700'], accent: '#1a0a0a', text: '#1a0a0a', icon: '🏮' }
+                classic: {
+                    bg: ['#c41e3a', '#8b0000'],
+                    accent: '#ffd700',
+                    text: '#fffef5',
+                    icon: '🐴'
+                },
+                elegant: {
+                    bg: ['#ffd700', '#b8860b'],
+                    accent: '#8b0000',
+                    text: '#1a0a0a',
+                    icon: '🎊'
+                },
+                festive: {
+                    bg: ['#e74c3c', '#ffd700'],
+                    accent: '#1a0a0a',
+                    text: '#1a0a0a',
+                    icon: '🏮'
+                }
             },
-            storageKeys: { cardStyle: 'horseYear_cardStyle', recipientName: 'horseYear_recipientName', senderName: 'horseYear_senderName' }
+            storageKeys: {
+                cardStyle: 'horseYear_cardStyle',
+                recipientName: 'horseYear_recipientName',
+                senderName: 'horseYear_senderName'
+            }
         };
+        
         const DOM = {
-            loadingScreen: document.getElementById('loadingScreen'), loadingBar: document.getElementById('loadingBar'),
-            wheelOuter: document.getElementById('wheelOuter'), wheelLabels: document.getElementById('wheelLabels'),
-            lotteryBtn: document.getElementById('lotteryBtn'), lotteryResult: document.getElementById('lotteryResult'),
-            prizeText: document.getElementById('prizeText'), resultIcon: document.getElementById('resultIcon'),
-            firecrackers: document.getElementById('firecrackers'), fireworks: document.getElementById('fireworks'),
-            cardStyles: document.querySelectorAll('.card-style'), recipientName: document.getElementById('recipientName'),
-            senderName: document.getElementById('senderName'), blessingText: document.getElementById('blessingText'),
-            generateBtn: document.getElementById('generateBtn'), downloadBtn: document.getElementById('downloadBtn'),
-            cardPreview: document.getElementById('cardPreview'), greetingCanvas: document.getElementById('greetingCanvas'),
-            musicBtn: document.getElementById('musicBtn'), bgMusic: document.getElementById('bgMusic')
+            loadingScreen: document.getElementById('loadingScreen'),
+            loadingBar: document.getElementById('loadingBar'),
+            wheelOuter: document.getElementById('wheelOuter'),
+            wheelLabels: document.getElementById('wheelLabels'),
+            lotteryBtn: document.getElementById('lotteryBtn'),
+            lotteryResult: document.getElementById('lotteryResult'),
+            prizeText: document.getElementById('prizeText'),
+            resultIcon: document.getElementById('resultIcon'),
+            firecrackers: document.getElementById('firecrackers'),
+            fireworks: document.getElementById('fireworks'),
+            cardStyles: document.querySelectorAll('.card-style'),
+            recipientName: document.getElementById('recipientName'),
+            senderName: document.getElementById('senderName'),
+            blessingText: document.getElementById('blessingText'),
+            generateBtn: document.getElementById('generateBtn'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            cardPreview: document.getElementById('cardPreview'),
+            greetingCanvas: document.getElementById('greetingCanvas'),
+            musicBtn: document.getElementById('musicBtn'),
+            bgMusic: document.getElementById('bgMusic')
         };
-        let state = { isSpinning: false, currentRotation: 0, selectedStyle: 'classic', isPlaying: false, sparkPool: [], fireworkPool: [], intervals: [], timeouts: [] };
+        
+        let state = {
+            isSpinning: false,
+            currentRotation: 0,
+            selectedStyle: 'classic',
+            isPlaying: false,
+            sparkPool: [],
+            fireworkPool: [],
+            intervals: [],
+            timeouts: []
+        };
+        
         function safeLocalStorage(action, key, value) {
             try {
-                if (action === 'get') return localStorage.getItem(key);
-                else if (action === 'set') { localStorage.setItem(key, value); return true; }
-            } catch (e) { console.warn('localStorage 不可用:', e.message); return null; }
+                if (action === 'get') {
+                    return localStorage.getItem(key);
+                } else if (action === 'set') {
+                    localStorage.setItem(key, value);
+                    return true;
+                }
+            } catch (e) {
+                console.warn('localStorage 不可用:', e.message);
+                return null;
+            }
         }
-        function managedSetInterval(callback, delay) { const id = setInterval(callback, delay); state.intervals.push(id); return id; }
+        
+        function managedSetInterval(callback, delay) {
+            const id = setInterval(callback, delay);
+            state.intervals.push(id);
+            return id;
+        }
+        
         function managedSetTimeout(callback, delay) {
             const id = setTimeout(() => {
                 const index = state.timeouts.indexOf(id);
@@ -872,31 +1255,64 @@
             state.timeouts.push(id);
             return id;
         }
-        function cleanup() { state.intervals.forEach(id => clearInterval(id)); state.timeouts.forEach(id => clearTimeout(id)); state.intervals = []; state.timeouts = []; }
-        function init() {
-            simulateLoading(); createWheelLabels(); loadSavedData(); bindEvents(); startSparks(); startRandomFireworks();
-            window.addEventListener('beforeunload', cleanup);
-            let resizeTimeout;
-            window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(createWheelLabels, 100); });
+        
+        function cleanup() {
+            state.intervals.forEach(id => clearInterval(id));
+            state.timeouts.forEach(id => clearTimeout(id));
+            state.intervals = [];
+            state.timeouts = [];
         }
+        
+        function init() {
+            simulateLoading();
+            createWheelLabels();
+            loadSavedData();
+            bindEvents();
+            startSparks();
+            startRandomFireworks();
+            
+            window.addEventListener('beforeunload', cleanup);
+            
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    createWheelLabels();
+                }, 100);
+            });
+        }
+        
         function simulateLoading() {
             let progress = 0;
-            const loadingIntervalId = setInterval(() => {
+            let loadingIntervalId = null;
+            
+            loadingIntervalId = setInterval(() => {
                 progress += Math.random() * 15 + 5;
-                if (progress >= 100) { progress = 100; clearInterval(loadingIntervalId); managedSetTimeout(() => DOM.loadingScreen.classList.add('hidden'), 300); }
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loadingIntervalId);
+                    managedSetTimeout(() => {
+                        DOM.loadingScreen.classList.add('hidden');
+                    }, 300);
+                }
                 DOM.loadingBar.style.width = progress + '%';
             }, 100);
         }
+        
         function createWheelLabels() {
             DOM.wheelLabels.innerHTML = '';
-            const wheelSize = DOM.wheelOuter.offsetWidth || 350;
+            
+            const wheelOuter = DOM.wheelOuter;
+            const wheelSize = wheelOuter.offsetWidth || 350;
             const radiusPercent = 72;
             const angleStep = 360 / CONFIG.prizes.length;
+            
             CONFIG.prizes.forEach((prize, index) => {
                 const angle = index * angleStep + angleStep / 2 - 90;
                 const radian = angle * Math.PI / 180;
                 const xPercent = 50 + radiusPercent * Math.cos(radian) * 0.5;
                 const yPercent = 50 + radiusPercent * Math.sin(radian) * 0.5;
+                
                 const label = document.createElement('div');
                 label.className = 'wheel-label';
                 label.textContent = prize.name;
@@ -906,56 +1322,104 @@
                 DOM.wheelLabels.appendChild(label);
             });
         }
+        
         function loadSavedData() {
             const savedStyle = safeLocalStorage('get', CONFIG.storageKeys.cardStyle);
             if (savedStyle && CONFIG.cardStyles[savedStyle]) {
                 state.selectedStyle = savedStyle;
-                DOM.cardStyles.forEach(s => { const isSelected = s.dataset.style === savedStyle; s.classList.toggle('selected', isSelected); });
+                DOM.cardStyles.forEach(s => {
+                    const isSelected = s.dataset.style === savedStyle;
+                    s.classList.toggle('selected', isSelected);
+                    s.setAttribute('aria-checked', isSelected);
+                });
             }
+            
             const savedRecipient = safeLocalStorage('get', CONFIG.storageKeys.recipientName);
             if (savedRecipient) DOM.recipientName.value = savedRecipient;
+            
             const savedSender = safeLocalStorage('get', CONFIG.storageKeys.senderName);
             if (savedSender) DOM.senderName.value = savedSender;
         }
+        
         function bindEvents() {
             DOM.lotteryBtn.addEventListener('click', spinWheel);
+            
             DOM.cardStyles.forEach(style => {
                 style.addEventListener('click', () => selectCardStyle(style));
-                style.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectCardStyle(style); } });
+                style.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectCardStyle(style);
+                    }
+                });
             });
+            
             DOM.generateBtn.addEventListener('click', generateCard);
             DOM.downloadBtn.addEventListener('click', downloadCard);
             DOM.musicBtn.addEventListener('click', toggleMusic);
-            DOM.recipientName.addEventListener('input', () => safeLocalStorage('set', CONFIG.storageKeys.recipientName, DOM.recipientName.value));
-            DOM.senderName.addEventListener('input', () => safeLocalStorage('set', CONFIG.storageKeys.senderName, DOM.senderName.value));
+            
+            DOM.recipientName.addEventListener('input', () => {
+                safeLocalStorage('set', CONFIG.storageKeys.recipientName, DOM.recipientName.value);
+            });
+            
+            DOM.senderName.addEventListener('input', () => {
+                safeLocalStorage('set', CONFIG.storageKeys.senderName, DOM.senderName.value);
+            });
         }
+        
         function selectCardStyle(style) {
-            DOM.cardStyles.forEach(s => s.classList.remove('selected'));
+            DOM.cardStyles.forEach(s => {
+                s.classList.remove('selected');
+                s.setAttribute('aria-checked', 'false');
+            });
             style.classList.add('selected');
+            style.setAttribute('aria-checked', 'true');
             state.selectedStyle = style.dataset.style;
             safeLocalStorage('set', CONFIG.storageKeys.cardStyle, state.selectedStyle);
         }
+        
         function spinWheel() {
             if (state.isSpinning) return;
+            
             state.isSpinning = true;
             DOM.lotteryBtn.disabled = true;
             DOM.lotteryResult.classList.remove('show');
+            
             const prizeIndex = Math.floor(Math.random() * CONFIG.prizes.length);
             const anglePerPrize = 360 / CONFIG.prizes.length;
             const targetAngle = 360 - (prizeIndex * anglePerPrize + anglePerPrize / 2);
             const spins = 5 + Math.floor(Math.random() * 3);
             const totalRotation = spins * 360 + targetAngle;
+            
             state.currentRotation += totalRotation;
             DOM.wheelOuter.style.transform = `rotate(${state.currentRotation}deg)`;
-            managedSetTimeout(() => { showResult(CONFIG.prizes[prizeIndex]); state.isSpinning = false; DOM.lotteryBtn.disabled = false; }, 4000);
+            
+            managedSetTimeout(() => {
+                showResult(CONFIG.prizes[prizeIndex]);
+                state.isSpinning = false;
+                DOM.lotteryBtn.disabled = false;
+            }, 4000);
         }
-        function showResult(prize) { DOM.resultIcon.textContent = prize.icon; DOM.prizeText.textContent = prize.name; DOM.lotteryResult.classList.add('show'); createFireworks(); }
+        
+        function showResult(prize) {
+            DOM.resultIcon.textContent = prize.icon;
+            DOM.prizeText.textContent = prize.name;
+            DOM.lotteryResult.classList.add('show');
+            createFireworks();
+        }
+        
         function createFireworks() {
             const container = DOM.fireworks;
+            
             for (let i = 0; i < 30; i++) {
                 managedSetTimeout(() => {
                     let firework = state.fireworkPool.pop();
-                    if (!firework) { firework = document.createElement('div'); firework.className = 'firework'; }
+                    
+                    if (!firework) {
+                        firework = document.createElement('div');
+                        firework.className = 'firework';
+                    }
+                    
                     firework.style.left = Math.random() * 100 + '%';
                     firework.style.top = Math.random() * 100 + '%';
                     const size = Math.random() * 10 + 5;
@@ -964,87 +1428,144 @@
                     const color = CONFIG.fireworkColors[Math.floor(Math.random() * CONFIG.fireworkColors.length)];
                     firework.style.background = color;
                     firework.style.boxShadow = `0 0 20px ${color}`;
+                    
                     container.appendChild(firework);
-                    managedSetTimeout(() => { if (firework.parentNode) firework.remove(); state.fireworkPool.push(firework); }, 1500);
+                    
+                    managedSetTimeout(() => {
+                        if (firework.parentNode) {
+                            firework.remove();
+                        }
+                        state.fireworkPool.push(firework);
+                    }, 1500);
                 }, i * 50);
             }
         }
+        
         function startSparks() {
             const container = DOM.firecrackers;
+            
             managedSetInterval(() => {
                 let spark = state.sparkPool.pop();
-                if (!spark) { spark = document.createElement('div'); spark.className = 'spark'; }
+                
+                if (!spark) {
+                    spark = document.createElement('div');
+                    spark.className = 'spark';
+                }
+                
                 spark.style.left = Math.random() * 100 + '%';
                 spark.style.top = Math.random() * 100 + '%';
                 spark.style.animation = 'none';
                 spark.offsetHeight;
                 spark.style.animation = 'sparkle 2s ease-out forwards';
+                
                 container.appendChild(spark);
-                managedSetTimeout(() => { if (spark.parentNode) spark.remove(); state.sparkPool.push(spark); }, 2000);
+                
+                managedSetTimeout(() => {
+                    if (spark.parentNode) {
+                        spark.remove();
+                    }
+                    state.sparkPool.push(spark);
+                }, 2000);
             }, 300);
         }
-        function startRandomFireworks() { managedSetInterval(() => { if (Math.random() > 0.85) createFireworks(); }, 8000); }
+        
+        function startRandomFireworks() {
+            managedSetInterval(() => {
+                if (Math.random() > 0.85) {
+                    createFireworks();
+                }
+            }, 8000);
+        }
+        
         function generateCard() {
             const recipientName = DOM.recipientName.value || '朋友';
             const senderName = DOM.senderName.value || '匿名';
             const blessingText = DOM.blessingText.value || '马年大吉！';
+            
             const canvas = DOM.greetingCanvas;
             const ctx = canvas.getContext('2d');
             const style = CONFIG.cardStyles[state.selectedStyle];
+            
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, style.bg[0]);
             gradient.addColorStop(1, style.bg[1]);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
             ctx.strokeStyle = style.accent;
             ctx.lineWidth = 8;
             ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+            
             ctx.strokeStyle = style.accent;
             ctx.lineWidth = 2;
             ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+            
             for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
                 ctx.arc(40 + i * 180, 40, 8, 0, Math.PI * 2);
                 ctx.fillStyle = style.accent;
                 ctx.fill();
+                
                 ctx.beginPath();
                 ctx.arc(40 + i * 180, canvas.height - 40, 8, 0, Math.PI * 2);
                 ctx.fill();
             }
+            
             ctx.font = '70px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(style.icon, canvas.width / 2, 100);
+            
             ctx.font = 'bold 42px "Noto Serif SC", serif';
             ctx.fillStyle = style.text;
             ctx.textAlign = 'center';
             ctx.fillText('甲午马年', canvas.width / 2, 170);
+            
             ctx.font = '24px "Noto Serif SC", serif';
             ctx.fillStyle = style.accent;
             ctx.fillText('致：' + recipientName, canvas.width / 2, 230);
+            
             ctx.font = '20px "Noto Serif SC", serif';
             ctx.fillStyle = style.text;
+            
             const maxWidth = canvas.width - 120;
             const lines = wrapText(ctx, blessingText, maxWidth);
             let y = 290;
-            lines.forEach(line => { ctx.fillText(line, canvas.width / 2, y); y += 32; });
+            lines.forEach(line => {
+                ctx.fillText(line, canvas.width / 2, y);
+                y += 32;
+            });
+            
             ctx.font = '18px "Noto Serif SC", serif';
             ctx.fillStyle = style.accent;
             ctx.textAlign = 'right';
             ctx.fillText('—— ' + senderName, canvas.width - 50, canvas.height - 45);
+            
             DOM.cardPreview.classList.add('show');
         }
+        
         function wrapText(ctx, text, maxWidth) {
             const lines = [];
             let currentLine = '';
+            
             for (let i = 0; i < text.length; i++) {
                 const testLine = currentLine + text[i];
                 const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && currentLine !== '') { lines.push(currentLine); currentLine = text[i]; }
-                else currentLine = testLine;
+                
+                if (metrics.width > maxWidth && currentLine !== '') {
+                    lines.push(currentLine);
+                    currentLine = text[i];
+                } else {
+                    currentLine = testLine;
+                }
             }
-            if (currentLine) lines.push(currentLine);
+            
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            
             return lines;
         }
+        
         function downloadCard() {
             const canvas = DOM.greetingCanvas;
             const link = document.createElement('a');
@@ -1052,20 +1573,31 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
+        
         function toggleMusic() {
             if (state.isPlaying) {
                 DOM.bgMusic.pause();
                 DOM.musicBtn.classList.remove('playing');
                 DOM.musicBtn.textContent = '🎵';
+                DOM.musicBtn.setAttribute('aria-pressed', 'false');
+                DOM.musicBtn.setAttribute('aria-label', '播放背景音乐');
             } else {
-                DOM.bgMusic.play().catch(e => console.log('音频播放需要用户交互'));
+                DOM.bgMusic.play().catch(e => {
+                    console.log('音频播放需要用户交互');
+                });
                 DOM.musicBtn.classList.add('playing');
                 DOM.musicBtn.textContent = '🔊';
+                DOM.musicBtn.setAttribute('aria-pressed', 'true');
+                DOM.musicBtn.setAttribute('aria-label', '暂停背景音乐');
             }
             state.isPlaying = !state.isPlaying;
         }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-        else init();
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     })();
     </script>
 </body>
