@@ -3,39 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="甲午马年新春盛典 - 抽奖、祝福、贺卡生成">
-    <meta name="theme-color" content="#c41e3a">
-    <title>甲午马年 · 新春盛典</title>
+    <meta name="description" content="丙午马年新春盛典 - 马到成功、龙马精神、一马当先">
+    <meta name="theme-color" content="#B91C1C">
+    <title>丙午马年 · 马到成功</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" as="style">
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --china-red: #c41e3a;
-            --deep-red: #8b0000;
-            --bright-red: #e74c3c;
-            --gold: #ffd700;
-            --dark-gold: #b8860b;
-            --light-gold: #fff4d6;
-            --cream: #fffef5;
-            --dark-bg: #1a0a0a;
-            --card-bg: #2d1515;
-            
-            --wheel-size: 350px;
-            --wheel-inner-size: 100px;
-            --animation-duration: 4s;
-            --spark-interval: 300;
-            --firework-count: 30;
-        }
-        
-        @media (max-width: 768px) {
-            :root {
-                --wheel-size: 280px;
-                --wheel-inner-size: 80px;
-            }
+            --china-red: #B91C1C;
+            --deep-red: #7F1D1D;
+            --blood-red: #450A0A;
+            --bright-red: #DC2626;
+            --gold: #FBBF24;
+            --bright-gold: #FCD34D;
+            --pale-gold: #FEF3C7;
+            --ink-black: #0A0A0A;
+            --paper-cream: #FFFBEB;
+            --lantern-orange: #F97316;
         }
         
         * {
@@ -44,1504 +31,1883 @@
             box-sizing: border-box;
         }
         
-        body {
-            font-family: 'Noto Serif SC', serif;
-            background: var(--dark-bg);
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: var(--cream);
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
         }
         
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--dark-bg);
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: var(--blood-red);
+            overflow-x: hidden;
+            color: var(--paper-cream);
+        }
+        
+        .scroll-container {
+            position: relative;
+        }
+        
+        .full-section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        .loading-horse {
-            font-size: 4rem;
-            animation: horseGallop 0.8s ease-in-out infinite;
-        }
-        
-        .loading-text {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 1.5rem;
-            color: var(--gold);
-            margin-top: 20px;
-            letter-spacing: 0.3em;
-        }
-        
-        .loading-progress {
-            width: 200px;
-            height: 4px;
-            background: rgba(255, 215, 0, 0.2);
-            border-radius: 2px;
-            margin-top: 20px;
             overflow: hidden;
         }
         
-        .loading-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--light-gold));
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-        
-        .bg-layer {
+        #bgCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
             z-index: 0;
-        }
-        
-        .bg-gradient {
-            background: 
-                radial-gradient(ellipse at 50% 0%, rgba(196, 30, 58, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse at 0% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 40%),
-                radial-gradient(ellipse at 100% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 40%),
-                radial-gradient(ellipse at 50% 100%, rgba(139, 0, 0, 0.4) 0%, transparent 50%);
-        }
-        
-        .lanterns {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             pointer-events: none;
-            z-index: 1;
         }
         
-        .lantern {
-            position: absolute;
-            font-size: 3rem;
-            animation: swing 4s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
-        }
-        
-        .lantern:nth-child(1) { left: 5%; top: 5%; animation-delay: 0s; }
-        .lantern:nth-child(2) { left: 15%; top: 3%; animation-delay: 0.5s; font-size: 2.5rem; }
-        .lantern:nth-child(3) { right: 5%; top: 5%; animation-delay: 1s; }
-        .lantern:nth-child(4) { right: 15%; top: 3%; animation-delay: 1.5s; font-size: 2.5rem; }
-        
-        @keyframes swing {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-        
-        .firecrackers {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 2;
-        }
-        
-        .spark {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: var(--gold);
-            border-radius: 50%;
-            animation: sparkle 2s ease-out forwards;
-        }
-        
-        @keyframes sparkle {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.5); }
-            100% { opacity: 0; transform: scale(0); }
-        }
-        
-        .container {
+        .section-content {
             position: relative;
             z-index: 10;
+            width: 100%;
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            padding: 40px 20px;
         }
         
-        header {
-            text-align: center;
-            padding: 80px 20px 50px;
-            position: relative;
+        /* ========== 开场英雄区 ========== */
+        .hero-section {
+            background: radial-gradient(ellipse at center bottom, rgba(185, 28, 28, 0.8) 0%, transparent 70%);
         }
         
-        .header-decoration {
+        .hero-decoration {
             position: absolute;
-            top: 20px;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .hero-decoration::before {
+            content: '';
+            position: absolute;
+            top: 10%;
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
-            max-width: 600px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(251, 191, 36, 0.15) 0%, transparent 70%);
+            animation: heroGlow 4s ease-in-out infinite;
         }
         
-        .header-decoration::before,
-        .header-decoration::after {
-            content: '✦';
-            position: absolute;
-            top: -10px;
-            font-size: 1.2rem;
-            color: var(--gold);
+        @keyframes heroGlow {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
         }
         
-        .header-decoration::before { left: 0; }
-        .header-decoration::after { right: 0; }
-        
-        .main-title {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: clamp(3.5rem, 10vw, 7rem);
-            background: linear-gradient(135deg, var(--gold) 0%, var(--light-gold) 50%, var(--gold) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: none;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
-            letter-spacing: 0.15em;
+        .hero-main {
+            text-align: center;
             position: relative;
+        }
+        
+        .hero-year-badge {
             display: inline-block;
-            animation: titleGlow 3s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--gold), var(--bright-gold));
+            color: var(--deep-red);
+            padding: 8px 30px;
+            border-radius: 30px;
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            animation: badgeFloat 3s ease-in-out infinite;
         }
         
-        @keyframes titleGlow {
-            0%, 100% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5)); }
-            50% { filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.8)); }
-        }
-        
-        .horse-icon {
-            font-size: 1.5em;
-            margin: 0 0.2em;
-            display: inline-block;
-            animation: horseGallop 1s ease-in-out infinite;
-        }
-        
-        @keyframes horseGallop {
+        @keyframes badgeFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
         }
         
-        .subtitle {
-            font-size: 1.4rem;
-            color: var(--light-gold);
+        .hero-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(5rem, 15vw, 12rem);
+            background: linear-gradient(180deg, var(--bright-gold) 0%, var(--gold) 50%, #D97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 60px rgba(251, 191, 36, 0.8));
+            letter-spacing: 0.15em;
+            line-height: 1.1;
+            position: relative;
+        }
+        
+        .hero-title::after {
+            content: '🐴';
+            position: absolute;
+            top: -20%;
+            right: -15%;
+            font-size: 0.3em;
+            -webkit-text-fill-color: initial;
+            animation: horseNod 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px var(--gold));
+        }
+        
+        @keyframes horseNod {
+            0%, 100% { transform: rotate(-15deg) translateY(0); }
+            50% { transform: rotate(15deg) translateY(-10px); }
+        }
+        
+        .hero-subtitle {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--pale-gold);
             margin-top: 20px;
             letter-spacing: 0.5em;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
         }
         
-        .year-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--china-red), var(--deep-red));
-            color: var(--gold);
-            padding: 12px 40px;
-            border-radius: 50px;
-            margin-top: 25px;
-            font-size: 1.1rem;
-            letter-spacing: 0.3em;
-            box-shadow: 
-                0 5px 20px rgba(196, 30, 58, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border: 2px solid var(--gold);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .year-badge::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            animation: badgeShine 3s linear infinite;
-        }
-        
-        @keyframes badgeShine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-        
-        section {
-            margin: 50px 0;
-            padding: 40px;
-            background: linear-gradient(145deg, rgba(45, 21, 21, 0.95), rgba(26, 10, 10, 0.98));
-            border-radius: 25px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
-        
-        .section-title {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 2.5rem;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 35px;
-            position: relative;
+        .hero-blessing-row {
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
+            margin-top: 50px;
+            flex-wrap: wrap;
         }
         
-        .section-title::before,
-        .section-title::after {
-            content: '◆';
-            font-size: 0.6em;
-            color: var(--china-red);
+        .blessing-chip {
+            background: linear-gradient(135deg, rgba(185, 28, 28, 0.8), rgba(127, 29, 29, 0.9));
+            border: 2px solid var(--gold);
+            padding: 12px 25px;
+            border-radius: 40px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+            color: var(--bright-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
         
-        .lottery-container {
+        .blessing-chip:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
+        }
+        
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 10px;
+            animation: scrollBounce 2s ease-in-out infinite;
         }
         
-        .lottery-wheel {
-            position: relative;
-            width: var(--wheel-size);
-            height: var(--wheel-size);
+        @keyframes scrollBounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(15px); }
         }
         
-        .wheel-outer {
-            position: absolute;
+        .scroll-hint span {
+            font-size: 0.9rem;
+            color: var(--pale-gold);
+            opacity: 0.8;
+            letter-spacing: 0.2em;
+        }
+        
+        .scroll-arrow {
+            width: 30px;
+            height: 30px;
+            border-right: 3px solid var(--gold);
+            border-bottom: 3px solid var(--gold);
+            transform: rotate(45deg);
+        }
+        
+        /* ========== 倒计时区 - 跑马场 ========== */
+        .countdown-section {
+            background: linear-gradient(180deg, var(--blood-red) 0%, var(--deep-red) 100%);
+        }
+        
+        .race-track-container {
             width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(
-                from 0deg,
-                var(--china-red) 0deg 40deg,
-                var(--deep-red) 40deg 80deg,
-                var(--china-red) 80deg 120deg,
-                var(--deep-red) 120deg 160deg,
-                var(--china-red) 160deg 200deg,
-                var(--deep-red) 200deg 240deg,
-                var(--china-red) 240deg 280deg,
-                var(--deep-red) 280deg 320deg,
-                var(--china-red) 320deg 360deg
-            );
-            box-shadow: 
-                0 0 30px rgba(255, 215, 0, 0.3),
-                inset 0 0 50px rgba(0, 0, 0, 0.5);
-            border: 4px solid var(--gold);
-            transition: transform var(--animation-duration) cubic-bezier(0.17, 0.67, 0.12, 0.99);
-            will-change: transform;
+            position: relative;
+        }
+        
+        .countdown-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .countdown-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--bright-gold);
+            text-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+        }
+        
+        .countdown-date {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1.2rem;
+            color: var(--pale-gold);
+            margin-top: 15px;
+            opacity: 0.9;
+        }
+        
+        .countdown-date span {
+            color: var(--gold);
+            font-weight: 700;
+        }
+        
+        .race-track {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(251, 191, 36, 0.1) 10%, 
+                rgba(251, 191, 36, 0.1) 90%, 
+                transparent 100%);
+            border-radius: 100px;
+            margin: 40px 0;
             overflow: hidden;
         }
         
-        .wheel-labels {
+        .track-ground {
             position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 8px;
+            background: repeating-linear-gradient(90deg, 
+                var(--gold) 0px, 
+                var(--gold) 30px, 
+                transparent 30px, 
+                transparent 50px);
+            transform: translateY(-50%);
+            opacity: 0.4;
+        }
+        
+        .track-start, .track-end {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            z-index: 5;
+        }
+        
+        .track-start {
+            left: 3%;
+        }
+        
+        .track-end {
+            right: 3%;
+        }
+        
+        .running-horse-container {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: left 0.5s ease-out;
+        }
+        
+        .running-horse {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px var(--gold));
+            animation: horseGallop 0.4s steps(2) infinite;
+        }
+        
+        @keyframes horseGallop {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        .countdown-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .countdown-card {
+            background: linear-gradient(145deg, rgba(185, 28, 28, 0.6), rgba(69, 10, 10, 0.8));
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            top: 0;
-            left: 0;
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+            animation: cardShine 3s infinite;
         }
         
-        .wheel-label {
+        @keyframes cardShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .countdown-value {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 4rem;
+            color: var(--bright-gold);
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .countdown-unit {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1.2rem;
+            color: var(--pale-gold);
+            margin-top: 10px;
+            letter-spacing: 0.3em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* ========== 灯笼祝福墙 ========== */
+        .lantern-section {
+            background: radial-gradient(ellipse at center, rgba(127, 29, 29, 0.5) 0%, var(--blood-red) 70%);
+        }
+        
+        .lantern-wall {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            perspective: 1000px;
+        }
+        
+        .lantern {
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            animation: lanternSwing 4s ease-in-out infinite;
+        }
+        
+        .lantern:nth-child(2) { animation-delay: -1s; }
+        .lantern:nth-child(3) { animation-delay: -2s; }
+        .lantern:nth-child(4) { animation-delay: -3s; }
+        .lantern:nth-child(5) { animation-delay: -0.5s; }
+        
+        @keyframes lanternSwing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        .lantern:hover {
+            animation-play-state: paused;
+        }
+        
+        .lantern-rope {
+            width: 4px;
+            height: 40px;
+            background: var(--gold);
+            margin: 0 auto;
+        }
+        
+        .lantern-body {
+            width: 100px;
+            height: 140px;
+            background: linear-gradient(180deg, var(--bright-red) 0%, var(--china-red) 50%, var(--deep-red) 100%);
+            border-radius: 50px;
+            position: relative;
+            box-shadow: 
+                0 0 30px rgba(251, 191, 36, 0.5),
+                inset 0 -20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 20px 40px rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .lantern-body::before,
+        .lantern-body::after {
+            content: '';
             position: absolute;
-            font-size: 0.85rem;
-            color: var(--cream);
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-            white-space: nowrap;
-            transform-origin: center center;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120%;
+            height: 20px;
+            background: linear-gradient(90deg, var(--gold), var(--bright-gold), var(--gold));
+            border-radius: 10px;
         }
         
-        .wheel-inner {
+        .lantern-body::before { top: 0; }
+        .lantern-body::after { bottom: 0; }
+        
+        .lantern-text {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            color: var(--bright-gold);
+            text-shadow: 0 0 20px var(--gold);
+            writing-mode: vertical-rl;
+        }
+        
+        .lantern-tassel {
+            width: 30px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .tassel-string {
+            width: 2px;
+            height: 30px;
+            background: var(--gold);
+            margin: 0 auto;
+        }
+        
+        .tassel-fringe {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--gold), var(--bright-gold));
+            border-radius: 0 0 15px 15px;
+            position: relative;
+        }
+        
+        .tassel-fringe::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 20px;
+            background: var(--gold);
+            border-radius: 0 0 5px 5px;
+        }
+        
+        .lantern-glow {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: var(--wheel-inner-size);
-            height: var(--wheel-inner-size);
-            background: radial-gradient(circle, var(--gold), var(--dark-gold));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            z-index: 2;
-        }
-        
-        .wheel-pointer {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 40px solid var(--gold);
-            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
-            z-index: 3;
-        }
-        
-        .lottery-btn {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-            color: var(--deep-red);
-            border: none;
-            padding: 18px 60px;
-            font-size: 1.4rem;
-            font-family: 'Ma Shan Zheng', cursive;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            letter-spacing: 0.15em;
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .lottery-btn:hover:not(:disabled) {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
-        }
-        
-        .lottery-btn:focus {
-            outline: 3px solid var(--light-gold);
-            outline-offset: 3px;
-        }
-        
-        .lottery-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .lottery-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transform: rotate(45deg) translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
-        .lottery-btn:hover::after {
-            transform: rotate(45deg) translateX(100%);
-        }
-        
-        .lottery-result {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(196, 30, 58, 0.1));
-            border-radius: 20px;
-            border: 2px solid var(--gold);
-            display: none;
-            min-width: 300px;
-        }
-        
-        .lottery-result.show {
-            display: block;
-            animation: resultPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        @keyframes resultPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        .result-title {
-            font-size: 1.3rem;
-            color: var(--light-gold);
-            margin-bottom: 15px;
-        }
-        
-        .result-prize {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 2.5rem;
-            color: var(--gold);
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-        
-        .result-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        
-        .blessings-scroll-container {
-            background: linear-gradient(135deg, rgba(196, 30, 58, 0.2), rgba(139, 0, 0, 0.3));
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .blessings-scroll {
-            display: flex;
-            gap: 50px;
-            animation: scrollBlessings 25s linear infinite;
-        }
-        
-        @keyframes scrollBlessings {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        
-        .blessing-item {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 1.8rem;
-            color: var(--gold);
-            white-space: nowrap;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        
-        .blessing-separator {
-            color: var(--china-red);
-            font-size: 1.5rem;
-        }
-        
-        .blessing-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .blessing-card {
-            background: linear-gradient(145deg, rgba(196, 30, 58, 0.3), rgba(45, 21, 21, 0.8));
-            padding: 30px 20px;
-            border-radius: 20px;
-            text-align: center;
-            border: 2px solid transparent;
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .blessing-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(ellipse, rgba(251, 191, 36, 0.3) 0%, transparent 70%);
+            pointer-events: none;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s ease;
         }
         
-        .blessing-card:hover,
-        .blessing-card:focus {
-            transform: translateY(-8px);
-            border-color: var(--gold);
-            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
-            outline: none;
-        }
-        
-        .blessing-card:hover::before,
-        .blessing-card:focus::before {
+        .lantern:hover .lantern-glow {
             opacity: 1;
         }
         
-        .blessing-card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
-        }
-        
-        .blessing-card-title {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 1.5rem;
-            color: var(--gold);
-            margin-bottom: 10px;
-        }
-        
-        .blessing-card-text {
-            font-size: 0.95rem;
-            color: var(--light-gold);
-            line-height: 1.7;
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .blessing-card:hover .blessing-card-text,
-        .blessing-card:focus .blessing-card-text {
-            opacity: 1;
-            max-height: 100px;
-            margin-top: 10px;
-        }
-        
-        .card-styles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card-style {
-            aspect-ratio: 4/3;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
+        .blessing-input-area {
+            margin-top: 60px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         
-        .card-style::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.9;
-            z-index: 0;
-        }
-        
-        .card-style.classic::before {
-            background: linear-gradient(135deg, var(--china-red), var(--deep-red));
-        }
-        
-        .card-style.elegant::before {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-        }
-        
-        .card-style.festive::before {
-            background: linear-gradient(135deg, var(--bright-red), var(--gold));
-        }
-        
-        .card-style.selected {
-            border-color: var(--gold);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            transform: scale(1.02);
-        }
-        
-        .card-style:hover:not(.selected),
-        .card-style:focus:not(.selected) {
-            transform: scale(1.02);
-            border-color: rgba(255, 215, 0, 0.5);
-            outline: none;
-        }
-        
-        .card-style-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .card-style-name {
-            font-family: 'Ma Shan Zheng', cursive;
-            font-size: 1.3rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .card-style.classic .card-style-name { color: var(--cream); }
-        .card-style.elegant .card-style-name { color: var(--deep-red); }
-        .card-style.festive .card-style-name { color: var(--dark-bg); }
-        
-        .card-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-group label {
-            margin-bottom: 10px;
-            color: var(--gold);
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group textarea {
+        .blessing-input {
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
             background: rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            color: var(--cream);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            padding: 15px 25px;
+            color: var(--paper-cream);
             font-family: inherit;
             font-size: 1rem;
             transition: all 0.3s ease;
         }
         
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .blessing-input:focus {
             outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
         }
         
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
+        .blessing-input::placeholder {
+            color: rgba(254, 243, 199, 0.5);
+        }
+        
+        .send-blessing-btn {
+            background: linear-gradient(135deg, var(--gold), var(--bright-gold));
+            color: var(--deep-red);
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+            box-shadow: 0 5px 20px rgba(251, 191, 36, 0.4);
+        }
+        
+        .send-blessing-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
+        }
+        
+        /* ========== 运势签筒 ========== */
+        .fortune-section {
+            background: linear-gradient(180deg, var(--blood-red) 0%, var(--ink-black) 100%);
+        }
+        
+        .fortune-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        @media (max-width: 900px) {
+            .fortune-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .fortune-barrel-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .fortune-barrel {
+            position: relative;
+            width: 200px;
+            height: 280px;
+        }
+        
+        .barrel-body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 220px;
+            background: linear-gradient(135deg, var(--china-red), var(--deep-red));
+            border-radius: 20px 20px 30px 30px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                inset 0 -30px 50px rgba(0, 0, 0, 0.3),
+                0 0 0 4px var(--gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .barrel-label {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 3rem;
+            color: var(--bright-gold);
+            text-shadow: 0 0 30px var(--gold);
+        }
+        
+        .fortune-sticks {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+        
+        .fortune-stick {
+            width: 10px;
+            height: 150px;
+            background: linear-gradient(180deg, var(--bright-gold), var(--gold), #D97706);
+            border-radius: 5px 5px 0 0;
+            transform-origin: bottom center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+        }
+        
+        .fortune-stick:hover {
+            transform: translateY(-30px) rotate(10deg);
+        }
+        
+        .fortune-stick.shaking {
+            animation: stickShake 0.5s ease-in-out;
+        }
+        
+        @keyframes stickShake {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-40px) rotate(-8deg); }
+            75% { transform: translateY(-40px) rotate(8deg); }
+        }
+        
+        .draw-fortune-btn {
+            margin-top: 40px;
+            background: linear-gradient(135deg, var(--bright-red), var(--china-red));
+            color: var(--bright-gold);
+            border: 3px solid var(--gold);
+            padding: 18px 50px;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.2em;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .draw-fortune-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(251, 191, 36, 0.4);
+        }
+        
+        .draw-fortune-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .fortune-result {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(185, 28, 28, 0.2));
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            animation: resultReveal 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .fortune-result.show {
+            display: block;
+        }
+        
+        @keyframes resultReveal {
+            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        .fortune-level {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 3rem;
+            color: var(--bright-gold);
+            text-shadow: 0 0 30px var(--gold);
+        }
+        
+        .fortune-text {
+            font-size: 1.1rem;
+            color: var(--pale-gold);
+            margin-top: 15px;
+            line-height: 1.8;
+        }
+        
+        .fortune-display {
+            text-align: center;
+        }
+        
+        .fortune-display-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            color: var(--bright-gold);
+            margin-bottom: 30px;
+        }
+        
+        /* ========== 剪纸贺卡 ========== */
+        .card-section {
+            background: var(--ink-black);
+        }
+        
+        .card-workshop {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+        
+        @media (max-width: 900px) {
+            .card-workshop {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card-options {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option-label {
+            font-family: 'ZCOOL XiaoWei', serif;
+            color: var(--bright-gold);
+            font-size: 1rem;
+        }
+        
+        .option-input {
+            background: rgba(185, 28, 28, 0.3);
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: var(--paper-cream);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .option-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+        }
+        
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .style-card {
+            aspect-ratio: 4/3;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .style-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+        
+        .style-card.red::before {
+            background: linear-gradient(135deg, var(--bright-red), var(--deep-red));
+        }
+        
+        .style-card.gold::before {
+            background: linear-gradient(135deg, var(--gold), #D97706);
+        }
+        
+        .style-card.ink::before {
+            background: linear-gradient(135deg, #1F1F1F, #0A0A0A);
+        }
+        
+        .style-card.paper::before {
+            background: linear-gradient(135deg, var(--paper-cream), #FEF3C7);
+        }
+        
+        .style-card.selected {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+            transform: scale(1.02);
+        }
+        
+        .style-icon {
+            font-size: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .style-name {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+            margin-top: 8px;
+        }
+        
+        .style-card.red .style-name,
+        .style-card.ink .style-name {
+            color: var(--pale-gold);
+        }
+        
+        .style-card.gold .style-name,
+        .style-card.paper .style-name {
+            color: var(--deep-red);
         }
         
         .generate-btn {
             background: linear-gradient(135deg, var(--china-red), var(--deep-red));
-            color: var(--gold);
+            color: var(--bright-gold);
             border: 2px solid var(--gold);
-            padding: 18px 50px;
-            font-size: 1.3rem;
+            padding: 18px 40px;
             font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.3rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
-            letter-spacing: 0.1em;
-            display: block;
-            margin: 0 auto;
+            letter-spacing: 0.15em;
+            margin-top: 10px;
         }
         
-        .generate-btn:hover,
-        .generate-btn:focus {
+        .generate-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.4);
-            outline: none;
+            box-shadow: 0 10px 30px rgba(185, 28, 28, 0.5);
         }
         
-        .card-preview-container {
-            margin-top: 40px;
-            text-align: center;
-            display: none;
+        .card-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
-        .card-preview-container.show {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .card-preview-container canvas {
-            max-width: 100%;
+        .preview-frame {
+            position: relative;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--gold), var(--bright-gold));
             border-radius: 20px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--gold);
+        }
+        
+        .preview-canvas {
+            display: block;
+            border-radius: 10px;
         }
         
         .download-btn {
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            margin-top: 25px;
+            background: linear-gradient(135deg, var(--gold), var(--bright-gold));
             color: var(--deep-red);
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
+            padding: 15px 35px;
             font-family: 'Ma Shan Zheng', cursive;
-            border-radius: 50px;
+            font-size: 1.1rem;
+            border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 25px;
             letter-spacing: 0.1em;
         }
         
-        .download-btn:hover,
-        .download-btn:focus {
+        .download-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
-            outline: none;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5);
         }
         
-        .music-control {
+        /* ========== 页脚 ========== */
+        .footer-section {
+            background: linear-gradient(180deg, var(--ink-black) 0%, var(--blood-red) 100%);
+            min-height: 50vh;
+        }
+        
+        .footer-content {
+            text-align: center;
+        }
+        
+        .footer-horse-parade {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+        
+        .footer-horse-parade span {
+            display: inline-block;
+            animation: horseGallop 0.4s steps(2) infinite;
+            margin: 0 5px;
+        }
+        
+        .footer-horse-parade span:nth-child(2) { animation-delay: 0.1s; }
+        .footer-horse-parade span:nth-child(3) { animation-delay: 0.2s; }
+        .footer-horse-parade span:nth-child(4) { animation-delay: 0.3s; }
+        .footer-horse-parade span:nth-child(5) { animation-delay: 0.4s; }
+        
+        .footer-main-text {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, var(--bright-gold), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.6));
+            margin-bottom: 20px;
+        }
+        
+        .footer-sub-text {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 1.2rem;
+            color: var(--pale-gold);
+            opacity: 0.8;
+            letter-spacing: 0.3em;
+        }
+        
+        .footer-divider {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 30px auto;
+        }
+        
+        .footer-year {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.5rem;
+            color: var(--bright-gold);
+        }
+        
+        /* ========== 浮动控制 ========== */
+        .float-controls {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            z-index: 100;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
-        .music-btn {
-            width: 65px;
-            height: 65px;
+        .float-btn {
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             background: linear-gradient(145deg, var(--china-red), var(--deep-red));
-            border: 3px solid var(--gold);
-            color: var(--gold);
-            font-size: 1.6rem;
+            border: 2px solid var(--gold);
+            color: var(--bright-gold);
+            font-size: 1.3rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
         }
         
-        .music-btn:hover,
-        .music-btn:focus {
+        .float-btn:hover {
             transform: scale(1.1);
-            outline: none;
         }
         
-        .music-btn.playing {
-            animation: musicPulse 1.5s infinite;
+        .float-btn.active {
+            background: linear-gradient(145deg, var(--gold), var(--bright-gold));
+            color: var(--deep-red);
         }
         
-        @keyframes musicPulse {
-            0%, 100% { box-shadow: 0 8px 25px rgba(196, 30, 58, 0.4); }
-            50% { box-shadow: 0 8px 40px rgba(255, 215, 0, 0.6); }
-        }
-        
-        .music-visualizer {
-            position: absolute;
-            bottom: 75px;
-            right: 5px;
-            display: flex;
-            gap: 4px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .music-btn.playing + .music-visualizer {
-            opacity: 1;
-        }
-        
-        .music-bar {
-            width: 5px;
-            height: 25px;
-            background: var(--gold);
-            border-radius: 3px;
-            animation: musicBar 0.6s ease-in-out infinite alternate;
-        }
-        
-        .music-bar:nth-child(1) { animation-delay: 0s; }
-        .music-bar:nth-child(2) { animation-delay: 0.1s; }
-        .music-bar:nth-child(3) { animation-delay: 0.2s; }
-        .music-bar:nth-child(4) { animation-delay: 0.15s; }
-        
-        @keyframes musicBar {
-            0% { height: 12px; }
-            100% { height: 30px; }
-        }
-        
-        .fireworks-container {
+        /* ========== 红包雨 ========== */
+        .red-packet {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            font-size: 2rem;
             pointer-events: none;
-            z-index: 5;
+            z-index: 999;
+            animation: redPacketFall linear forwards;
+            filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
         }
         
-        .firework {
-            position: absolute;
-            border-radius: 50%;
-            animation: fireworkBurst 1.5s ease-out forwards;
+        @keyframes redPacketFall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
         }
         
-        @keyframes fireworkBurst {
-            0% { transform: scale(0); opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { transform: scale(30); opacity: 0; }
-        }
-        
-        footer {
-            text-align: center;
-            padding: 50px 20px;
-            position: relative;
-        }
-        
-        .footer-decoration {
-            width: 60%;
-            max-width: 400px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-            margin: 0 auto 20px;
-        }
-        
-        footer p {
-            color: var(--light-gold);
-            margin: 8px 0;
-            font-size: 1rem;
-        }
-        
-        .footer-icon {
-            font-size: 1.5rem;
-            margin: 0 10px;
-        }
-        
+        /* ========== 响应式 ========== */
         @media (max-width: 768px) {
-            .lantern {
+            .countdown-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .lantern-wall {
+                gap: 20px;
+            }
+            
+            .lantern-body {
+                width: 80px;
+                height: 110px;
+            }
+            
+            .lantern-text {
                 font-size: 2rem;
             }
             
-            .music-control {
-                bottom: 20px;
-                right: 20px;
+            .style-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
-            .music-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.3rem;
+            .race-track {
+                height: 150px;
             }
             
-            section {
-                padding: 25px;
-                margin: 30px 0;
-            }
-            
-            .blessing-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .card-styles {
-                grid-template-columns: repeat(3, 1fr);
+            .running-horse {
+                font-size: 3rem;
             }
         }
         
         @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
+            *, *::before, *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
-            }
-            
-            .blessings-scroll {
-                animation: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading-screen" id="loadingScreen" role="status" aria-label="页面加载中">
-        <div class="loading-horse">🐴</div>
-        <p class="loading-text">新春盛典加载中</p>
-        <div class="loading-progress">
-            <div class="loading-progress-bar" id="loadingBar"></div>
-        </div>
-    </div>
+    <canvas id="bgCanvas"></canvas>
     
-    <div class="bg-layer bg-gradient" aria-hidden="true"></div>
-    
-    <div class="lanterns" aria-hidden="true">
-        <span class="lantern">🏮</span>
-        <span class="lantern">🏮</span>
-        <span class="lantern">🏮</span>
-        <span class="lantern">🏮</span>
-    </div>
-    
-    <div class="firecrackers" id="firecrackers" aria-hidden="true"></div>
-    <div class="fireworks-container" id="fireworks" aria-hidden="true"></div>
-    
-    <main class="container">
-        <header>
-            <div class="header-decoration" aria-hidden="true"></div>
-            <h1 class="main-title">
-                <span class="horse-icon" aria-hidden="true">🐴</span>
-                甲午马年
-                <span class="horse-icon" aria-hidden="true">🐴</span>
-            </h1>
-            <p class="subtitle">龙马精神 · 万事如意</p>
-            <span class="year-badge">✦ 新春盛典 ✦</span>
-        </header>
+    <div class="scroll-container">
+        <!-- 英雄区 -->
+        <section class="full-section hero-section">
+            <div class="hero-decoration"></div>
+            <div class="section-content hero-main">
+                <div class="hero-year-badge">丙午马年 · 2026</div>
+                <h1 class="hero-title">马到成功</h1>
+                <p class="hero-subtitle">龙马精神 · 一马当先</p>
+                <div class="hero-blessing-row">
+                    <div class="blessing-chip" data-blessing="马到成功">🐴 马到成功</div>
+                    <div class="blessing-chip" data-blessing="龙马精神">✨ 龙马精神</div>
+                    <div class="blessing-chip" data-blessing="一马当先">🏆 一马当先</div>
+                    <div class="blessing-chip" data-blessing="万事如意">🧧 万事如意</div>
+                </div>
+            </div>
+            <div class="scroll-hint">
+                <span>向下滑动</span>
+                <div class="scroll-arrow"></div>
+            </div>
+        </section>
         
-        <section id="lottery" aria-labelledby="lottery-title">
-            <h2 class="section-title" id="lottery-title">新春抽奖</h2>
-            <div class="lottery-container">
-                <div class="lottery-wheel" role="img" aria-label="抽奖转盘">
-                    <div class="wheel-pointer" aria-hidden="true"></div>
-                    <div class="wheel-outer" id="wheelOuter" aria-hidden="true">
-                        <div class="wheel-labels" id="wheelLabels"></div>
+        <!-- 倒计时跑马场 -->
+        <section class="full-section countdown-section">
+            <div class="section-content">
+                <div class="countdown-header">
+                    <h2 class="countdown-title">🏇 春节倒计时</h2>
+                    <p class="countdown-date"><span>2026年2月17日</span> 农历正月初一 · 丙午马年</p>
+                </div>
+                
+                <div class="race-track">
+                    <div class="track-ground"></div>
+                    <div class="track-start">🏁</div>
+                    <div class="track-end">🏆</div>
+                    <div class="running-horse-container" id="horseRunner">
+                        <div class="running-horse">🐴</div>
                     </div>
-                    <div class="wheel-inner" aria-hidden="true">🎁</div>
                 </div>
-                <button class="lottery-btn" id="lotteryBtn" aria-describedby="lottery-instruction">
-                    开始抽奖
-                </button>
-                <span id="lottery-instruction" class="visually-hidden">点击按钮开始抽奖转盘</span>
-                <div class="lottery-result" id="lotteryResult" role="alert" aria-live="polite">
-                    <div class="result-icon" id="resultIcon" aria-hidden="true">🎉</div>
-                    <p class="result-title">恭喜您获得</p>
-                    <p class="result-prize" id="prizeText"></p>
-                </div>
-            </div>
-        </section>
-        
-        <section id="blessings" aria-labelledby="blessings-title">
-            <h2 class="section-title" id="blessings-title">新春祝福</h2>
-            <div class="blessings-scroll-container" aria-label="滚动祝福语">
-                <div class="blessings-scroll" id="blessingsScroll">
-                    <span class="blessing-item">马到成功</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">龙马精神</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">一马当先</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万马奔腾</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马年大吉</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">吉祥如意</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">阖家幸福</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万事亨通</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马到成功</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">龙马精神</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">一马当先</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万马奔腾</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">马年大吉</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">吉祥如意</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">阖家幸福</span>
-                    <span class="blessing-separator">✦</span>
-                    <span class="blessing-item">万事亨通</span>
-                    <span class="blessing-separator">✦</span>
-                </div>
-            </div>
-            <div class="blessing-cards" role="list">
-                <div class="blessing-card" role="listitem" tabindex="0" aria-label="马到成功祝福">
-                    <span class="blessing-card-icon" aria-hidden="true">🐴</span>
-                    <h3 class="blessing-card-title">马到成功</h3>
-                    <p class="blessing-card-text">愿您马年：事业如骏马奔腾，财源似万马齐喑，生活若春风得意！</p>
-                </div>
-                <div class="blessing-card" role="listitem" tabindex="0" aria-label="龙马精神祝福">
-                    <span class="blessing-card-icon" aria-hidden="true">🐉</span>
-                    <h3 class="blessing-card-title">龙马精神</h3>
-                    <p class="blessing-card-text">祝您新年：龙马精神展宏图，金戈铁马创伟业，天马行空任翱翔！</p>
-                </div>
-                <div class="blessing-card" role="listitem" tabindex="0" aria-label="一马当先祝福">
-                    <span class="blessing-card-icon" aria-hidden="true">⭐</span>
-                    <h3 class="blessing-card-title">一马当先</h3>
-                    <p class="blessing-card-text">愿新的一年：一马当先开新局，快马加鞭奔前程，汗马功劳铸辉煌！</p>
-                </div>
-                <div class="blessing-card" role="listitem" tabindex="0" aria-label="吉祥如意祝福">
-                    <span class="blessing-card-icon" aria-hidden="true">🏮</span>
-                    <h3 class="blessing-card-title">吉祥如意</h3>
-                    <p class="blessing-card-text">恭祝您：马年行大运，福禄双全至，阖家皆欢乐，万事尽如意！</p>
+                
+                <div class="countdown-cards">
+                    <div class="countdown-card">
+                        <div class="countdown-value" id="days">00</div>
+                        <div class="countdown-unit">天</div>
+                    </div>
+                    <div class="countdown-card">
+                        <div class="countdown-value" id="hours">00</div>
+                        <div class="countdown-unit">时</div>
+                    </div>
+                    <div class="countdown-card">
+                        <div class="countdown-value" id="minutes">00</div>
+                        <div class="countdown-unit">分</div>
+                    </div>
+                    <div class="countdown-card">
+                        <div class="countdown-value" id="seconds">00</div>
+                        <div class="countdown-unit">秒</div>
+                    </div>
                 </div>
             </div>
         </section>
         
-        <section id="greetingCard" aria-labelledby="card-title">
-            <h2 class="section-title" id="card-title">贺卡生成</h2>
-            <div class="card-styles" role="radiogroup" aria-label="选择贺卡风格">
-                <div class="card-style classic selected" data-style="classic" role="radio" aria-checked="true" tabindex="0">
-                    <span class="card-style-icon" aria-hidden="true">🐴</span>
-                    <span class="card-style-name">经典红金</span>
+        <!-- 灯笼祝福墙 -->
+        <section class="full-section lantern-section">
+            <div class="section-content">
+                <div class="countdown-header">
+                    <h2 class="countdown-title">🏮 祝福灯笼墙</h2>
+                    <p class="countdown-date">点击灯笼送上祝福</p>
                 </div>
-                <div class="card-style elegant" data-style="elegant" role="radio" aria-checked="false" tabindex="0">
-                    <span class="card-style-icon" aria-hidden="true">🎊</span>
-                    <span class="card-style-name">华贵金韵</span>
+                
+                <div class="lantern-wall" id="lanternWall">
+                    <div class="lantern" data-blessing="福">
+                        <div class="lantern-rope"></div>
+                        <div class="lantern-body">
+                            <span class="lantern-text">福</span>
+                            <div class="lantern-glow"></div>
+                        </div>
+                        <div class="lantern-tassel">
+                            <div class="tassel-string"></div>
+                            <div class="tassel-fringe"></div>
+                        </div>
+                    </div>
+                    <div class="lantern" data-blessing="禄">
+                        <div class="lantern-rope"></div>
+                        <div class="lantern-body">
+                            <span class="lantern-text">禄</span>
+                            <div class="lantern-glow"></div>
+                        </div>
+                        <div class="lantern-tassel">
+                            <div class="tassel-string"></div>
+                            <div class="tassel-fringe"></div>
+                        </div>
+                    </div>
+                    <div class="lantern" data-blessing="寿">
+                        <div class="lantern-rope"></div>
+                        <div class="lantern-body">
+                            <span class="lantern-text">寿</span>
+                            <div class="lantern-glow"></div>
+                        </div>
+                        <div class="lantern-tassel">
+                            <div class="tassel-string"></div>
+                            <div class="tassel-fringe"></div>
+                        </div>
+                    </div>
+                    <div class="lantern" data-blessing="喜">
+                        <div class="lantern-rope"></div>
+                        <div class="lantern-body">
+                            <span class="lantern-text">喜</span>
+                            <div class="lantern-glow"></div>
+                        </div>
+                        <div class="lantern-tassel">
+                            <div class="tassel-string"></div>
+                            <div class="tassel-fringe"></div>
+                        </div>
+                    </div>
+                    <div class="lantern" data-blessing="财">
+                        <div class="lantern-rope"></div>
+                        <div class="lantern-body">
+                            <span class="lantern-text">财</span>
+                            <div class="lantern-glow"></div>
+                        </div>
+                        <div class="lantern-tassel">
+                            <div class="tassel-string"></div>
+                            <div class="tassel-fringe"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-style festive" data-style="festive" role="radio" aria-checked="false" tabindex="0">
-                    <span class="card-style-icon" aria-hidden="true">🏮</span>
-                    <span class="card-style-name">喜庆红金</span>
+                
+                <div class="blessing-input-area">
+                    <input type="text" class="blessing-input" id="blessingInput" placeholder="写下你的马年祝福..." maxlength="30">
+                    <button class="send-blessing-btn" id="sendBlessing">发送祝福 🐴</button>
                 </div>
-            </div>
-            <form class="card-form" id="cardForm" aria-label="贺卡信息表单">
-                <div class="form-group">
-                    <label for="recipientName">收件人姓名</label>
-                    <input type="text" id="recipientName" placeholder="请输入收件人姓名" maxlength="20" autocomplete="name">
-                </div>
-                <div class="form-group">
-                    <label for="senderName">发件人姓名</label>
-                    <input type="text" id="senderName" placeholder="请输入您的姓名" maxlength="20" autocomplete="name">
-                </div>
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label for="blessingText">祝福语</label>
-                    <textarea id="blessingText" placeholder="请输入您的祝福语..." maxlength="100">马年到，好运到！愿您新的一年：龙马精神，马到成功！</textarea>
-                </div>
-            </form>
-            <button class="generate-btn" id="generateBtn" type="button">生成贺卡</button>
-            <div class="card-preview-container" id="cardPreview" aria-label="贺卡预览">
-                <canvas id="greetingCanvas" width="600" height="450" aria-label="生成的贺卡图片"></canvas>
-                <br>
-                <button class="download-btn" id="downloadBtn" type="button">下载贺卡</button>
             </div>
         </section>
         
-        <footer>
-            <div class="footer-decoration" aria-hidden="true"></div>
-            <p>
-                <span class="footer-icon" aria-hidden="true">🐴</span>
-                甲午马年 · 新春盛典
-                <span class="footer-icon" aria-hidden="true">🐴</span>
-            </p>
-            <p>祝您马年大吉，万事如意</p>
-        </footer>
-    </main>
-    
-    <div class="music-control">
-        <button class="music-btn" id="musicBtn" aria-label="播放背景音乐" aria-pressed="false">🎵</button>
-        <div class="music-visualizer" aria-hidden="true">
-            <div class="music-bar"></div>
-            <div class="music-bar"></div>
-            <div class="music-bar"></div>
-            <div class="music-bar"></div>
-        </div>
+        <!-- 运势签筒 -->
+        <section class="full-section fortune-section">
+            <div class="section-content">
+                <div class="fortune-container">
+                    <div class="fortune-barrel-area">
+                        <div class="fortune-barrel">
+                            <div class="fortune-sticks" id="fortuneSticks"></div>
+                            <div class="barrel-body">
+                                <span class="barrel-label">求签</span>
+                            </div>
+                        </div>
+                        <button class="draw-fortune-btn" id="drawBtn">摇签祈福</button>
+                    </div>
+                    
+                    <div class="fortune-display">
+                        <h3 class="fortune-display-title">🐴 马年运势</h3>
+                        <div class="fortune-result" id="fortuneResult">
+                            <div class="fortune-level" id="fortuneLevel">上上签</div>
+                            <div class="fortune-text" id="fortuneText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 马年幸运转盘 -->
+        <section class="full-section" style="background: linear-gradient(180deg, var(--deep-red) 0%, var(--blood-red) 100%);">
+            <div class="section-content">
+                <div class="countdown-header">
+                    <h2 class="countdown-title">🎰 马年幸运转盘</h2>
+                    <p class="countdown-date">转动转盘，赢取马年祝福</p>
+                </div>
+                
+                <div style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
+                    <div style="position: relative; width: 300px; height: 300px;">
+                        <div id="luckWheel" style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(
+                            var(--bright-red) 0deg 60deg,
+                            var(--gold) 60deg 120deg,
+                            var(--bright-red) 120deg 180deg,
+                            var(--gold) 180deg 240deg,
+                            var(--bright-red) 240deg 300deg,
+                            var(--gold) 300deg 360deg
+                        ); box-shadow: 0 0 50px rgba(251, 191, 36, 0.5); border: 4px solid var(--gold); cursor: pointer;"></div>
+                        <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);">🎯</div>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <div style="font-family: 'Ma Shan Zheng', cursive; font-size: 1.8rem; color: var(--bright-gold); text-shadow: 0 0 20px var(--gold);">转一转</div>
+                            <div style="font-size: 0.9rem; color: var(--pale-gold); margin-top: 10px;">好运滚滚来</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="wheelResult" style="text-align: center; margin-top: 40px; padding: 20px; background: rgba(0,0,0,0.3); border: 2px solid var(--gold); border-radius: 20px; display: none;">
+                    <div style="font-family: 'Ma Shan Zheng', cursive; font-size: 2rem; color: var(--bright-gold); margin-bottom: 10px;">🎉 恭喜获得</div>
+                    <div id="wheelPrize" style="font-size: 1.2rem; color: var(--pale-gold); line-height: 1.6;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 剪纸贺卡 -->
+        <section class="full-section card-section">
+            <div class="section-content">
+                <div class="countdown-header">
+                    <h2 class="countdown-title">✂️ 剪纸贺卡工坊</h2>
+                    <p class="countdown-date">制作专属马年贺卡</p>
+                </div>
+                
+                <div class="card-workshop">
+                    <div class="card-options">
+                        <div class="option-group">
+                            <label class="option-label">收件人</label>
+                            <input type="text" class="option-input" id="recipientInput" placeholder="请输入收件人姓名" maxlength="10">
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">发件人</label>
+                            <input type="text" class="option-input" id="senderInput" placeholder="请输入您的姓名" maxlength="10">
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">祝福语</label>
+                            <textarea class="option-input" id="messageInput" rows="3" placeholder="马到成功，万事如意！" maxlength="50">马到成功，万事如意！龙马精神，前程似锦！</textarea>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+                                <button class="blessing-chip" style="font-size: 0.9rem; padding: 6px 15px;" onclick="DOM.messageInput.value='马到成功，事业腾飞！'">🐴 事业腾飞</button>
+                                <button class="blessing-chip" style="font-size: 0.9rem; padding: 6px 15px;" onclick="DOM.messageInput.value='龙马精神，健康长寿！'">✨ 健康长寿</button>
+                                <button class="blessing-chip" style="font-size: 0.9rem; padding: 6px 15px;" onclick="DOM.messageInput.value='一马当先，学业有成！'">🏆 学业有成</button>
+                                <button class="blessing-chip" style="font-size: 0.9rem; padding: 6px 15px;" onclick="DOM.messageInput.value='万马奔腾，财运亨通！'">💰 财运亨通</button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label class="option-label">选择风格</label>
+                            <div class="style-grid">
+                                <div class="style-card red selected" data-style="red">
+                                    <span class="style-icon">🏮</span>
+                                    <span class="style-name">中国红</span>
+                                </div>
+                                <div class="style-card gold" data-style="gold">
+                                    <span class="style-icon">✨</span>
+                                    <span class="style-name">璀璨金</span>
+                                </div>
+                                <div class="style-card ink" data-style="ink">
+                                    <span class="style-icon">🖌️</span>
+                                    <span class="style-name">水墨黑</span>
+                                </div>
+                                <div class="style-card paper" data-style="paper">
+                                    <span class="style-icon">📜</span>
+                                    <span class="style-name">宣纸白</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="generate-btn" id="generateCard">生成贺卡 🐴</button>
+                    </div>
+                    
+                    <div class="card-preview">
+                        <div class="preview-frame">
+                            <canvas class="preview-canvas" id="cardCanvas" width="400" height="300"></canvas>
+                        </div>
+                        <button class="download-btn" id="downloadCard">下载贺卡</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 页脚 -->
+        <section class="full-section footer-section">
+            <div class="section-content footer-content">
+                <div class="footer-horse-parade">
+                    <span>🐴</span>
+                    <span>🐴</span>
+                    <span>🐴</span>
+                    <span>🐴</span>
+                    <span>🐴</span>
+                </div>
+                <h2 class="footer-main-text">丙午马年 · 马到成功</h2>
+                <p class="footer-sub-text">祝您龙马精神，前程似锦</p>
+                <div class="footer-divider"></div>
+                <p class="footer-year">2026 · 新春快乐</p>
+            </div>
+        </section>
     </div>
     
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3" type="audio/mpeg">
-        <source src="https://cdn.pixabay.com/audio/2021/09/06/audio_0b7749c8e2.mp3" type="audio/mpeg">
-        <source src="https://cdn.pixabay.com/audio/2021/08/09/audio_0625c6b4a1.mp3" type="audio/mpeg">
-    </audio>
-    
-    <style>
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-    </style>
+    <div class="float-controls">
+        <button class="float-btn active" id="particleBtn" title="祥云粒子">☁️</button>
+        <button class="float-btn" id="fireworkBtn" title="烟花">🎆</button>
+        <button class="float-btn" id="redPacketBtn" title="红包雨">🧧</button>
+    </div>
     
     <script>
     (function() {
         'use strict';
         
         const CONFIG = {
-            prizes: [
-                { name: '一等奖', icon: '🏆' },
-                { name: '二等奖', icon: '🥈' },
-                { name: '三等奖', icon: '🥉' },
-                { name: '幸运奖', icon: '🍀' },
-                { name: '马年大吉', icon: '🐴' },
-                { name: '新年快乐', icon: '🎊' },
-                { name: '恭喜发财', icon: '💰' },
-                { name: '心想事成', icon: '✨' },
-                { name: '万事如意', icon: '🎁' }
+            springFestival: new Date('2026-02-17T00:00:00').getTime(),
+            fortunes: [
+                { level: '上上签', text: '龙马精神，事业腾飞！贵人相助，万事亨通！马到成功，财源广进！' },
+                { level: '上签', text: '一马当先，前程似锦！马年行大运，好运连连来！' },
+                { level: '上签', text: '快马加鞭，梦想成真！贵人扶持，诸事顺遂！' },
+                { level: '中上签', text: '策马扬鞭，勇往直前！虽有波折，终将成功！' },
+                { level: '中签', text: '稳扎稳打，步步为营！耐心等待，时机将至！' },
+                { level: '中签', text: '千里马常有，伯乐终会来！坚持努力，必有收获！' },
+                { level: '中下签', text: '脚踏实地，切勿急躁！守得云开见月明！' },
+                { level: '下签', text: '韬光养晦，蓄势待发！暂避锋芒，静待时机！' },
+                { level: '上上签', text: '万马奔腾，财运亨通！八方来财，富贵吉祥！' },
+                { level: '上签', text: '马到功成，学业有成！金榜题名，前程无量！' },
+                { level: '上签', text: '龙马精神，健康长寿！身体安康，福寿双全！' },
+                { level: '中上签', text: '一马平川，爱情美满！良缘天定，幸福长久！' },
+                { level: '中签', text: '马不停蹄，事业有成！努力奋斗，终有回报！' },
+                { level: '中下签', text: '老马识途，经验丰富！审时度势，必有转机！' }
             ],
-            fireworkColors: ['#c41e3a', '#ffd700', '#e74c3c', '#fff4d6', '#ff6b6b'],
             cardStyles: {
-                classic: {
-                    bg: ['#c41e3a', '#8b0000'],
-                    accent: '#ffd700',
-                    text: '#fffef5',
-                    icon: '🐴'
+                red: {
+                    bg: ['#DC2626', '#7F1D1D'],
+                    accent: '#FBBF24',
+                    text: '#FFFBEB',
+                    border: '#FBBF24'
                 },
-                elegant: {
-                    bg: ['#ffd700', '#b8860b'],
-                    accent: '#8b0000',
-                    text: '#1a0a0a',
-                    icon: '🎊'
+                gold: {
+                    bg: ['#FBBF24', '#D97706'],
+                    accent: '#7F1D1D',
+                    text: '#1F1F1F',
+                    border: '#7F1D1D'
                 },
-                festive: {
-                    bg: ['#e74c3c', '#ffd700'],
-                    accent: '#1a0a0a',
-                    text: '#1a0a0a',
-                    icon: '🏮'
+                ink: {
+                    bg: ['#1F1F1F', '#0A0A0A'],
+                    accent: '#FBBF24',
+                    text: '#FFFBEB',
+                    border: '#FBBF24'
+                },
+                paper: {
+                    bg: ['#FFFBEB', '#FEF3C7'],
+                    accent: '#7F1D1D',
+                    text: '#1F1F1F',
+                    border: '#7F1D1D'
                 }
-            },
-            storageKeys: {
-                cardStyle: 'horseYear_cardStyle',
-                recipientName: 'horseYear_recipientName',
-                senderName: 'horseYear_senderName'
             }
         };
         
         const DOM = {
-            loadingScreen: document.getElementById('loadingScreen'),
-            loadingBar: document.getElementById('loadingBar'),
-            wheelOuter: document.getElementById('wheelOuter'),
-            wheelLabels: document.getElementById('wheelLabels'),
-            lotteryBtn: document.getElementById('lotteryBtn'),
-            lotteryResult: document.getElementById('lotteryResult'),
-            prizeText: document.getElementById('prizeText'),
-            resultIcon: document.getElementById('resultIcon'),
-            firecrackers: document.getElementById('firecrackers'),
-            fireworks: document.getElementById('fireworks'),
-            cardStyles: document.querySelectorAll('.card-style'),
-            recipientName: document.getElementById('recipientName'),
-            senderName: document.getElementById('senderName'),
-            blessingText: document.getElementById('blessingText'),
-            generateBtn: document.getElementById('generateBtn'),
-            downloadBtn: document.getElementById('downloadBtn'),
-            cardPreview: document.getElementById('cardPreview'),
-            greetingCanvas: document.getElementById('greetingCanvas'),
-            musicBtn: document.getElementById('musicBtn'),
-            bgMusic: document.getElementById('bgMusic')
+            bgCanvas: document.getElementById('bgCanvas'),
+            horseRunner: document.getElementById('horseRunner'),
+            days: document.getElementById('days'),
+            hours: document.getElementById('hours'),
+            minutes: document.getElementById('minutes'),
+            seconds: document.getElementById('seconds'),
+            lanternWall: document.getElementById('lanternWall'),
+            blessingInput: document.getElementById('blessingInput'),
+            sendBlessing: document.getElementById('sendBlessing'),
+            fortuneSticks: document.getElementById('fortuneSticks'),
+            drawBtn: document.getElementById('drawBtn'),
+            fortuneResult: document.getElementById('fortuneResult'),
+            fortuneLevel: document.getElementById('fortuneLevel'),
+            fortuneText: document.getElementById('fortuneText'),
+            recipientInput: document.getElementById('recipientInput'),
+            senderInput: document.getElementById('senderInput'),
+            messageInput: document.getElementById('messageInput'),
+            styleCards: document.querySelectorAll('.style-card'),
+            generateCard: document.getElementById('generateCard'),
+            cardCanvas: document.getElementById('cardCanvas'),
+            downloadCard: document.getElementById('downloadCard'),
+            particleBtn: document.getElementById('particleBtn'),
+            fireworkBtn: document.getElementById('fireworkBtn'),
+            redPacketBtn: document.getElementById('redPacketBtn'),
+            blessingChips: document.querySelectorAll('.blessing-chip'),
+            luckWheel: document.getElementById('luckWheel'),
+            wheelResult: document.getElementById('wheelResult'),
+            wheelPrize: document.getElementById('wheelPrize')
         };
         
         let state = {
+            selectedStyle: 'red',
+            isDrawing: false,
             isSpinning: false,
-            currentRotation: 0,
-            selectedStyle: 'classic',
-            isPlaying: false,
-            sparkPool: [],
-            fireworkPool: [],
-            intervals: [],
-            timeouts: []
+            particlesEnabled: true,
+            fireworksEnabled: false,
+            particles: [],
+            clouds: []
         };
         
-        function safeLocalStorage(action, key, value) {
-            try {
-                if (action === 'get') {
-                    return localStorage.getItem(key);
-                } else if (action === 'set') {
-                    localStorage.setItem(key, value);
-                    return true;
-                }
-            } catch (e) {
-                console.warn('localStorage 不可用:', e.message);
-                return null;
-            }
-        }
-        
-        function managedSetInterval(callback, delay) {
-            const id = setInterval(callback, delay);
-            state.intervals.push(id);
-            return id;
-        }
-        
-        function managedSetTimeout(callback, delay) {
-            const id = setTimeout(() => {
-                const index = state.timeouts.indexOf(id);
-                if (index > -1) state.timeouts.splice(index, 1);
-                callback();
-            }, delay);
-            state.timeouts.push(id);
-            return id;
-        }
-        
-        function cleanup() {
-            state.intervals.forEach(id => clearInterval(id));
-            state.timeouts.forEach(id => clearTimeout(id));
-            state.intervals = [];
-            state.timeouts = [];
-        }
-        
         function init() {
-            simulateLoading();
-            createWheelLabels();
-            loadSavedData();
+            initCanvas();
+            initFortuneSticks();
             bindEvents();
-            startSparks();
-            startRandomFireworks();
-            
-            window.addEventListener('beforeunload', cleanup);
-            
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    createWheelLabels();
-                }, 100);
-            });
+            startCountdown();
         }
         
-        function simulateLoading() {
-            let progress = 0;
-            let loadingIntervalId = null;
+        function initCanvas() {
+            const canvas = DOM.bgCanvas;
+            const ctx = canvas.getContext('2d');
             
-            loadingIntervalId = setInterval(() => {
-                progress += Math.random() * 15 + 5;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(loadingIntervalId);
-                    managedSetTimeout(() => {
-                        DOM.loadingScreen.classList.add('hidden');
-                    }, 300);
-                }
-                DOM.loadingBar.style.width = progress + '%';
-            }, 100);
-        }
-        
-        function createWheelLabels() {
-            DOM.wheelLabels.innerHTML = '';
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
             
-            const wheelOuter = DOM.wheelOuter;
-            const wheelSize = wheelOuter.offsetWidth || 350;
-            const radiusPercent = 72;
-            const angleStep = 360 / CONFIG.prizes.length;
-            
-            CONFIG.prizes.forEach((prize, index) => {
-                const angle = index * angleStep + angleStep / 2 - 90;
-                const radian = angle * Math.PI / 180;
-                const xPercent = 50 + radiusPercent * Math.cos(radian) * 0.5;
-                const yPercent = 50 + radiusPercent * Math.sin(radian) * 0.5;
-                
-                const label = document.createElement('div');
-                label.className = 'wheel-label';
-                label.textContent = prize.name;
-                label.style.left = xPercent + '%';
-                label.style.top = yPercent + '%';
-                label.style.transform = `translate(-50%, -50%) rotate(${angle + 90}deg)`;
-                DOM.wheelLabels.appendChild(label);
-            });
-        }
-        
-        function loadSavedData() {
-            const savedStyle = safeLocalStorage('get', CONFIG.storageKeys.cardStyle);
-            if (savedStyle && CONFIG.cardStyles[savedStyle]) {
-                state.selectedStyle = savedStyle;
-                DOM.cardStyles.forEach(s => {
-                    const isSelected = s.dataset.style === savedStyle;
-                    s.classList.toggle('selected', isSelected);
-                    s.setAttribute('aria-checked', isSelected);
+            for (let i = 0; i < 6; i++) {
+                state.clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.6,
+                    size: 30 + Math.random() * 40,
+                    speed: 0.1 + Math.random() * 0.2,
+                    opacity: 0.1 + Math.random() * 0.15
                 });
             }
             
-            const savedRecipient = safeLocalStorage('get', CONFIG.storageKeys.recipientName);
-            if (savedRecipient) DOM.recipientName.value = savedRecipient;
+            function drawCloud(cloud) {
+                ctx.save();
+                ctx.globalAlpha = cloud.opacity;
+                ctx.fillStyle = '#FBBF24';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = 'rgba(251, 191, 36, 0.5)';
+                
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.size * 0.6, cloud.y - cloud.size * 0.2, cloud.size * 0.7, 0, Math.PI * 2);
+                ctx.arc(cloud.x - cloud.size * 0.5, cloud.y + cloud.size * 0.1, cloud.size * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
             
-            const savedSender = safeLocalStorage('get', CONFIG.storageKeys.senderName);
-            if (savedSender) DOM.senderName.value = savedSender;
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const gradient = ctx.createRadialGradient(
+                    canvas.width / 2, canvas.height, 0,
+                    canvas.width / 2, canvas.height, canvas.height
+                );
+                gradient.addColorStop(0, 'rgba(127, 29, 29, 0.3)');
+                gradient.addColorStop(1, 'rgba(10, 10, 10, 1)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                if (state.particlesEnabled) {
+                    state.clouds.forEach(cloud => {
+                        cloud.x += cloud.speed;
+                        if (cloud.x > canvas.width + cloud.size * 2) {
+                            cloud.x = -cloud.size * 2;
+                        }
+                        drawCloud(cloud);
+                    });
+                }
+                
+                for (let i = state.particles.length - 1; i >= 0; i--) {
+                    const p = state.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life--;
+                    
+                    if (p.life <= 0) {
+                        state.particles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    ctx.save();
+                    ctx.globalAlpha = p.life / p.maxLife;
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife), 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                
+                if (state.fireworksEnabled && Math.random() > 0.97) {
+                    createFirework();
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            document.addEventListener('mousemove', (e) => {
+                if (state.particlesEnabled && Math.random() > 0.7) {
+                    state.particles.push({
+                        x: e.clientX,
+                        y: e.clientY,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        size: 2 + Math.random() * 2,
+                        life: 30,
+                        maxLife: 30,
+                        color: Math.random() > 0.5 ? '#FBBF24' : '#DC2626'
+                    });
+                    
+                    if (state.particles.length > 100) {
+                        state.particles.shift();
+                    }
+                }
+            });
+        }
+        
+        function createFirework() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight * 0.5;
+            const colors = ['#FBBF24', '#DC2626', '#F97316', '#FCD34D'];
+            
+            for (let i = 0; i < 40; i++) {
+                const angle = (Math.PI * 2 * i) / 40;
+                const speed = 2 + Math.random() * 4;
+                state.particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 3,
+                    life: 50,
+                    maxLife: 50,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+        
+        function createRedPacketRain() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const packet = document.createElement('div');
+                    packet.className = 'red-packet';
+                    packet.textContent = '🧧';
+                    packet.style.left = Math.random() * window.innerWidth + 'px';
+                    packet.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    document.body.appendChild(packet);
+                    
+                    setTimeout(() => packet.remove(), 5000);
+                }, i * 100);
+            }
+        }
+        
+        function initFortuneSticks() {
+            DOM.fortuneSticks.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const stick = document.createElement('div');
+                stick.className = 'fortune-stick';
+                stick.style.height = (100 + Math.random() * 50) + 'px';
+                stick.style.transform = `rotate(${(Math.random() - 0.5) * 8}deg)`;
+                DOM.fortuneSticks.appendChild(stick);
+            }
+        }
+        
+        function startCountdown() {
+            function update() {
+                const now = Date.now();
+                const distance = CONFIG.springFestival - now;
+                
+                if (distance <= 0) {
+                    DOM.days.textContent = '00';
+                    DOM.hours.textContent = '00';
+                    DOM.minutes.textContent = '00';
+                    DOM.seconds.textContent = '00';
+                    DOM.horseRunner.style.left = '90%';
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                DOM.days.textContent = String(days).padStart(2, '0');
+                DOM.hours.textContent = String(hours).padStart(2, '0');
+                DOM.minutes.textContent = String(minutes).padStart(2, '0');
+                DOM.seconds.textContent = String(seconds).padStart(2, '0');
+                
+                const totalSeconds = Math.floor(distance / 1000);
+                const yearSeconds = 365 * 24 * 60 * 60;
+                const progress = Math.max(0, Math.min(90, 90 - (totalSeconds / yearSeconds) * 80));
+                DOM.horseRunner.style.left = progress + '%';
+            }
+            
+            update();
+            setInterval(update, 1000);
         }
         
         function bindEvents() {
-            DOM.lotteryBtn.addEventListener('click', spinWheel);
-            
-            DOM.cardStyles.forEach(style => {
-                style.addEventListener('click', () => selectCardStyle(style));
-                style.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        selectCardStyle(style);
-                    }
+            DOM.blessingChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const blessing = chip.dataset.blessing;
+                    DOM.blessingInput.value = blessing;
+                    createRedPacketRain();
                 });
             });
             
-            DOM.generateBtn.addEventListener('click', generateCard);
-            DOM.downloadBtn.addEventListener('click', downloadCard);
-            DOM.musicBtn.addEventListener('click', toggleMusic);
-            
-            DOM.recipientName.addEventListener('input', () => {
-                safeLocalStorage('set', CONFIG.storageKeys.recipientName, DOM.recipientName.value);
+            DOM.lanternWall.addEventListener('click', (e) => {
+                const lantern = e.target.closest('.lantern');
+                if (lantern) {
+                    const blessing = lantern.dataset.blessing;
+                    const rect = lantern.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            for (let j = 0; j < 8; j++) {
+                                const angle = (Math.PI * 2 * j) / 8;
+                                const speed = 3 + Math.random() * 3;
+                                state.particles.push({
+                                    x: centerX,
+                                    y: centerY,
+                                    vx: Math.cos(angle) * speed,
+                                    vy: Math.sin(angle) * speed,
+                                    size: 3 + Math.random() * 2,
+                                    life: 50,
+                                    maxLife: 50,
+                                    color: Math.random() > 0.5 ? '#FBBF24' : '#DC2626'
+                                });
+                            }
+                        }, i * 100);
+                    }
+                    
+                    lantern.style.transform = 'rotate(0deg) scale(1.1)';
+                    setTimeout(() => {
+                        lantern.style.transform = 'rotate(0deg) scale(1)';
+                    }, 300);
+                }
             });
             
-            DOM.senderName.addEventListener('input', () => {
-                safeLocalStorage('set', CONFIG.storageKeys.senderName, DOM.senderName.value);
+            DOM.sendBlessing.addEventListener('click', () => {
+                const text = DOM.blessingInput.value.trim();
+                if (text) {
+                    createRedPacketRain();
+                    DOM.blessingInput.value = '';
+                }
             });
-        }
-        
-        function selectCardStyle(style) {
-            DOM.cardStyles.forEach(s => {
-                s.classList.remove('selected');
-                s.setAttribute('aria-checked', 'false');
+            
+            DOM.drawBtn.addEventListener('click', drawFortune);
+            
+            DOM.styleCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    DOM.styleCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    state.selectedStyle = card.dataset.style;
+                });
             });
-            style.classList.add('selected');
-            style.setAttribute('aria-checked', 'true');
-            state.selectedStyle = style.dataset.style;
-            safeLocalStorage('set', CONFIG.storageKeys.cardStyle, state.selectedStyle);
+            
+            DOM.generateCard.addEventListener('click', generateCard);
+            DOM.downloadCard.addEventListener('click', downloadCard);
+            
+            DOM.particleBtn.addEventListener('click', () => {
+                state.particlesEnabled = !state.particlesEnabled;
+                DOM.particleBtn.classList.toggle('active', state.particlesEnabled);
+            });
+            
+            DOM.fireworkBtn.addEventListener('click', () => {
+                state.fireworksEnabled = !state.fireworksEnabled;
+                DOM.fireworkBtn.classList.toggle('active', state.fireworksEnabled);
+                if (state.fireworksEnabled) {
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => createFirework(), i * 200);
+                    }
+                }
+            });
+            
+            DOM.redPacketBtn.addEventListener('click', createRedPacketRain);
+            
+            if (DOM.luckWheel) {
+                DOM.luckWheel.addEventListener('click', spinWheel);
+            }
         }
         
         function spinWheel() {
             if (state.isSpinning) return;
-            
             state.isSpinning = true;
-            DOM.lotteryBtn.disabled = true;
-            DOM.lotteryResult.classList.remove('show');
             
-            const prizeIndex = Math.floor(Math.random() * CONFIG.prizes.length);
-            const anglePerPrize = 360 / CONFIG.prizes.length;
-            const targetAngle = 360 - (prizeIndex * anglePerPrize + anglePerPrize / 2);
-            const spins = 5 + Math.floor(Math.random() * 3);
-            const totalRotation = spins * 360 + targetAngle;
+            const prizes = [
+                '🐴 马到成功祝福',
+                '✨ 龙马精神加持',
+                '🏆 一马当先好运',
+                '💰 财运亨通福袋',
+                '🎓 学业有成锦囊',
+                '❤️ 爱情美满符'
+            ];
             
-            state.currentRotation += totalRotation;
-            DOM.wheelOuter.style.transform = `rotate(${state.currentRotation}deg)`;
+            const angle = Math.floor(Math.random() * 360) + 720;
+            const duration = 3000;
             
-            managedSetTimeout(() => {
-                showResult(CONFIG.prizes[prizeIndex]);
-                state.isSpinning = false;
-                DOM.lotteryBtn.disabled = false;
-            }, 4000);
-        }
-        
-        function showResult(prize) {
-            DOM.resultIcon.textContent = prize.icon;
-            DOM.prizeText.textContent = prize.name;
-            DOM.lotteryResult.classList.add('show');
-            createFireworks();
-        }
-        
-        function createFireworks() {
-            const container = DOM.fireworks;
+            DOM.luckWheel.style.transition = `transform ${duration}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
+            DOM.luckWheel.style.transform = `rotate(${angle}deg)`;
             
-            for (let i = 0; i < 30; i++) {
-                managedSetTimeout(() => {
-                    let firework = state.fireworkPool.pop();
-                    
-                    if (!firework) {
-                        firework = document.createElement('div');
-                        firework.className = 'firework';
-                    }
-                    
-                    firework.style.left = Math.random() * 100 + '%';
-                    firework.style.top = Math.random() * 100 + '%';
-                    const size = Math.random() * 10 + 5;
-                    firework.style.width = size + 'px';
-                    firework.style.height = size + 'px';
-                    const color = CONFIG.fireworkColors[Math.floor(Math.random() * CONFIG.fireworkColors.length)];
-                    firework.style.background = color;
-                    firework.style.boxShadow = `0 0 20px ${color}`;
-                    
-                    container.appendChild(firework);
-                    
-                    managedSetTimeout(() => {
-                        if (firework.parentNode) {
-                            firework.remove();
-                        }
-                        state.fireworkPool.push(firework);
-                    }, 1500);
-                }, i * 50);
+            const centerX = DOM.luckWheel.getBoundingClientRect().left + DOM.luckWheel.offsetWidth / 2;
+            const centerY = DOM.luckWheel.getBoundingClientRect().top + DOM.luckWheel.offsetHeight / 2;
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    state.particles.push({
+                        x: centerX,
+                        y: centerY,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        size: 3 + Math.random() * 2,
+                        life: 40,
+                        maxLife: 40,
+                        color: Math.random() > 0.5 ? '#FBBF24' : '#DC2626'
+                    });
+                }, i * 100);
             }
-        }
-        
-        function startSparks() {
-            const container = DOM.firecrackers;
             
-            managedSetInterval(() => {
-                let spark = state.sparkPool.pop();
+            setTimeout(() => {
+                const prizeIndex = Math.floor((360 - (angle % 360)) / 60) % 6;
+                const prize = prizes[prizeIndex];
                 
-                if (!spark) {
-                    spark = document.createElement('div');
-                    spark.className = 'spark';
-                }
+                DOM.wheelPrize.textContent = prize;
+                DOM.wheelResult.style.display = 'block';
                 
-                spark.style.left = Math.random() * 100 + '%';
-                spark.style.top = Math.random() * 100 + '%';
-                spark.style.animation = 'none';
-                spark.offsetHeight;
-                spark.style.animation = 'sparkle 2s ease-out forwards';
+                createRedPacketRain();
                 
-                container.appendChild(spark);
+                state.isSpinning = false;
                 
-                managedSetTimeout(() => {
-                    if (spark.parentNode) {
-                        spark.remove();
-                    }
-                    state.sparkPool.push(spark);
-                }, 2000);
-            }, 300);
+                setTimeout(() => {
+                    DOM.wheelResult.style.display = 'none';
+                }, 3000);
+            }, duration + 500);
         }
         
-        function startRandomFireworks() {
-            managedSetInterval(() => {
-                if (Math.random() > 0.85) {
-                    createFireworks();
+        function drawFortune() {
+            if (state.isDrawing) return;
+            state.isDrawing = true;
+            DOM.drawBtn.disabled = true;
+            DOM.fortuneResult.classList.remove('show');
+            
+            const sticks = DOM.fortuneSticks.querySelectorAll('.fortune-stick');
+            sticks.forEach((stick, index) => {
+                setTimeout(() => {
+                    stick.classList.add('shaking');
+                }, index * 50);
+            });
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const x = DOM.drawBtn.getBoundingClientRect().left + DOM.drawBtn.offsetWidth / 2;
+                    const y = DOM.drawBtn.getBoundingClientRect().top;
+                    state.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        size: 3,
+                        life: 40,
+                        maxLife: 40,
+                        color: '#FBBF24'
+                    });
+                }, i * 100);
+            }
+            
+            setTimeout(() => {
+                sticks.forEach((stick, index) => {
+                    setTimeout(() => {
+                        stick.classList.remove('shaking');
+                    }, index * 50);
+                });
+                
+                const fortune = CONFIG.fortunes[Math.floor(Math.random() * CONFIG.fortunes.length)];
+                DOM.fortuneLevel.textContent = fortune.level;
+                DOM.fortuneText.textContent = fortune.text;
+                DOM.fortuneResult.classList.add('show');
+                
+                for (let i = 0; i < 15; i++) {
+                    const x = DOM.fortuneResult.getBoundingClientRect().left + DOM.fortuneResult.offsetWidth / 2;
+                    const y = DOM.fortuneResult.getBoundingClientRect().top + DOM.fortuneResult.offsetHeight / 2;
+                    state.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        size: 4,
+                        life: 50,
+                        maxLife: 50,
+                        color: '#DC2626'
+                    });
                 }
-            }, 8000);
+                
+                state.isDrawing = false;
+                DOM.drawBtn.disabled = false;
+            }, 2000);
         }
         
         function generateCard() {
-            const recipientName = DOM.recipientName.value || '朋友';
-            const senderName = DOM.senderName.value || '匿名';
-            const blessingText = DOM.blessingText.value || '马年大吉！';
-            
-            const canvas = DOM.greetingCanvas;
+            const canvas = DOM.cardCanvas;
             const ctx = canvas.getContext('2d');
             const style = CONFIG.cardStyles[state.selectedStyle];
             
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, style.bg[0]);
-            gradient.addColorStop(1, style.bg[1]);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.strokeStyle = style.accent;
-            ctx.lineWidth = 8;
-            ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
-            
-            ctx.strokeStyle = style.accent;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
-            
-            for (let i = 0; i < 4; i++) {
-                ctx.beginPath();
-                ctx.arc(40 + i * 180, 40, 8, 0, Math.PI * 2);
-                ctx.fillStyle = style.accent;
-                ctx.fill();
+            try {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                ctx.beginPath();
-                ctx.arc(40 + i * 180, canvas.height - 40, 8, 0, Math.PI * 2);
-                ctx.fill();
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, style.bg[0]);
+                gradient.addColorStop(1, style.bg[1]);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = style.border;
+                ctx.lineWidth = 8;
+                ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+                
+                ctx.strokeStyle = style.border;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+                
+                for (let i = 0; i < 4; i++) {
+                    ctx.beginPath();
+                    ctx.arc(30 + i * 115, 30, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = style.accent;
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.arc(30 + i * 115, canvas.height - 30, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.font = '50px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = style.text;
+                ctx.fillText('🐴', canvas.width / 2, 70);
+                
+                ctx.font = 'bold 36px "Ma Shan Zheng", cursive';
+                ctx.fillStyle = style.text;
+                ctx.fillText('丙午马年', canvas.width / 2, 120);
+                
+                const recipient = DOM.recipientInput.value || '朋友';
+                ctx.font = '18px "Noto Serif SC", serif';
+                ctx.fillStyle = style.accent;
+                ctx.fillText('致：' + recipient, canvas.width / 2, 160);
+                
+                const message = DOM.messageInput.value || '马到成功，万事如意！';
+                ctx.font = '14px "Noto Serif SC", serif';
+                ctx.fillStyle = style.text;
+                
+                const maxWidth = canvas.width - 80;
+                const lines = wrapText(ctx, message, maxWidth);
+                let y = 190;
+                lines.forEach(line => {
+                    if (y < canvas.height - 40) {
+                        ctx.fillText(line, canvas.width / 2, y);
+                        y += 22;
+                    }
+                });
+                
+                const sender = DOM.senderInput.value || '匿名';
+                ctx.font = '14px "Noto Serif SC", serif';
+                ctx.fillStyle = style.accent;
+                ctx.textAlign = 'right';
+                ctx.fillText('—— ' + sender, canvas.width - 35, canvas.height - 30);
+                
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const x = DOM.generateCard.getBoundingClientRect().left + DOM.generateCard.offsetWidth / 2;
+                        const y = DOM.generateCard.getBoundingClientRect().top;
+                        state.particles.push({
+                            x: x,
+                            y: y,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
+                            size: 3,
+                            life: 40,
+                            maxLife: 40,
+                            color: style.accent
+                        });
+                    }, i * 80);
+                }
+            } catch (error) {
+                console.error('贺卡生成失败:', error);
             }
-            
-            ctx.font = '70px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(style.icon, canvas.width / 2, 100);
-            
-            ctx.font = 'bold 42px "Noto Serif SC", serif';
-            ctx.fillStyle = style.text;
-            ctx.textAlign = 'center';
-            ctx.fillText('甲午马年', canvas.width / 2, 170);
-            
-            ctx.font = '24px "Noto Serif SC", serif';
-            ctx.fillStyle = style.accent;
-            ctx.fillText('致：' + recipientName, canvas.width / 2, 230);
-            
-            ctx.font = '20px "Noto Serif SC", serif';
-            ctx.fillStyle = style.text;
-            
-            const maxWidth = canvas.width - 120;
-            const lines = wrapText(ctx, blessingText, maxWidth);
-            let y = 290;
-            lines.forEach(line => {
-                ctx.fillText(line, canvas.width / 2, y);
-                y += 32;
-            });
-            
-            ctx.font = '18px "Noto Serif SC", serif';
-            ctx.fillStyle = style.accent;
-            ctx.textAlign = 'right';
-            ctx.fillText('—— ' + senderName, canvas.width - 50, canvas.height - 45);
-            
-            DOM.cardPreview.classList.add('show');
         }
         
         function wrapText(ctx, text, maxWidth) {
@@ -1568,30 +1934,11 @@
         }
         
         function downloadCard() {
-            const canvas = DOM.greetingCanvas;
+            const canvas = DOM.cardCanvas;
             const link = document.createElement('a');
             link.download = '马年贺卡.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-        }
-        
-        function toggleMusic() {
-            if (state.isPlaying) {
-                DOM.bgMusic.pause();
-                DOM.musicBtn.classList.remove('playing');
-                DOM.musicBtn.textContent = '🎵';
-                DOM.musicBtn.setAttribute('aria-pressed', 'false');
-                DOM.musicBtn.setAttribute('aria-label', '播放背景音乐');
-            } else {
-                DOM.bgMusic.play().catch(e => {
-                    console.log('音频播放需要用户交互');
-                });
-                DOM.musicBtn.classList.add('playing');
-                DOM.musicBtn.textContent = '🔊';
-                DOM.musicBtn.setAttribute('aria-pressed', 'true');
-                DOM.musicBtn.setAttribute('aria-label', '暂停背景音乐');
-            }
-            state.isPlaying = !state.isPlaying;
         }
         
         if (document.readyState === 'loading') {
